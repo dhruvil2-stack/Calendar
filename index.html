@@ -2,20 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Quick Cal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quick Cal - Engineering Natural Language Calendar</title>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     :root {
-      --bg: #0f172a;
-      --card-bg: #1e293b;
-      --border: #334155;
-      --accent: #3b82f6;
-      --accent-hover: #2563eb;
-      --text: #f8fafc;
+      --bg-dark: #090d16;
+      --card-bg: #121927;
+      --card-border: #1e293d;
+      --input-bg: #0b101d;
+      --accent-blue: #3b82f6;
+      --accent-purple: #6366f1;
+      --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+      --text-main: #f8fafc;
       --text-muted: #94a3b8;
-      --danger: #ef4444;
+      --border-light: #2a364f;
       --success: #10b981;
+      --danger: #ef4444;
       --radius: 12px;
     }
 
@@ -23,193 +26,377 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
+      background-color: var(--bg-dark);
+      color: var(--text-main);
       min-height: 100vh;
+      padding: 1.5rem;
       display: flex;
       justify-content: center;
-      padding: 1rem;
     }
 
-    .container {
+    .app-wrapper {
       width: 100%;
-      max-width: 500px;
+      max-width: 1280px;
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 1.25rem;
     }
 
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.25rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--card-border);
     }
 
-    h1 {
-      font-size: 1.4rem;
+    .brand-title {
+      font-size: 1.5rem;
       font-weight: 700;
       display: flex;
       align-items: center;
       gap: 0.5rem;
     }
 
+    .btn-settings {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 0.5rem 0.9rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+    .btn-settings:hover { background: var(--card-border); }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+
+    @media (min-width: 992px) {
+      .dashboard-grid {
+        grid-template-columns: 1.15fr 0.85fr;
+      }
+    }
+
+    .col {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
     .card {
       background: var(--card-bg);
-      border: 1px solid var(--border);
+      border: 1px solid var(--card-border);
       border-radius: var(--radius);
       padding: 1.25rem;
       display: flex;
       flex-direction: column;
-      gap: 0.85rem;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+      gap: 1rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
     }
 
-    label {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .presets-pills {
+    .card-header {
       display: flex;
-      gap: 0.4rem;
-      overflow-x: auto;
-      padding-bottom: 0.25rem;
-      scrollbar-width: none;
+      justify-content: space-between;
+      align-items: center;
     }
-    .presets-pills::-webkit-scrollbar { display: none; }
 
-    .pill {
-      background: rgba(59, 130, 246, 0.12);
-      border: 1px solid rgba(59, 130, 246, 0.3);
-      color: #60a5fa;
-      padding: 0.35rem 0.65rem;
-      border-radius: 9999px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      white-space: nowrap;
-      cursor: pointer;
-      transition: all 0.2s;
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-main);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
-    .pill:hover {
-      background: rgba(59, 130, 246, 0.25);
-      color: #fff;
+
+    .badge-auto {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    .sub-text {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: -0.5rem;
     }
 
     textarea, input, select {
       width: 100%;
-      background: #0f172a;
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 0.75rem;
+      background-color: var(--input-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 0.8rem 0.9rem;
       border-radius: 8px;
       font-size: 0.9rem;
       font-family: inherit;
       outline: none;
       transition: border-color 0.2s;
     }
+
     textarea:focus, input:focus, select:focus {
-      border-color: var(--accent);
+      border-color: var(--accent-blue);
     }
+
     textarea {
       resize: vertical;
-      min-height: 90px;
+      min-height: 95px;
     }
 
-    button {
-      width: 100%;
-      background: var(--accent);
-      color: white;
-      border: none;
-      padding: 0.85rem;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      cursor: pointer;
-      transition: background 0.2s;
+    .presets-row {
       display: flex;
-      justify-content: center;
       align-items: center;
       gap: 0.5rem;
-    }
-    button:hover { background: var(--accent-hover); }
-
-    button.secondary {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      width: auto;
-      padding: 0.4rem 0.8rem;
-      font-size: 0.85rem;
-    }
-    button.secondary:hover {
-      background: var(--border);
-      color: var(--text);
-    }
-
-    .btn-danger {
-      background: rgba(239, 68, 68, 0.15);
-      color: var(--danger);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      padding: 0.25rem 0.55rem;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      cursor: pointer;
-      width: auto;
-    }
-    .btn-danger:hover { background: rgba(239, 68, 68, 0.3); }
-
-    /* PREVIEW ITEM CARDS */
-    .preview-item {
-      background: #0f172a;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.75rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 0.5rem;
-    }
-
-    .preview-body { display: flex; flex-direction: column; gap: 0.25rem; }
-    .preview-title-row { font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
-    .preview-meta-row { font-size: 0.8rem; color: var(--text-muted); line-height: 1.3; }
-
-    .tag {
-      display: inline-block;
-      padding: 0.15rem 0.5rem;
-      border-radius: 9999px;
-      font-size: 0.7rem;
-      font-weight: 700;
-      text-transform: uppercase;
-    }
-
-    .cat-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.6rem 0;
-      border-bottom: 1px solid var(--border);
-    }
-    .cat-item:last-child { border-bottom: none; }
-
-    .status-box {
-      padding: 0.65rem;
-      border-radius: 8px;
+      flex-wrap: wrap;
       font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .pill-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 0.35rem 0.7rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+    .pill-btn:hover {
+      background: rgba(59, 130, 246, 0.2);
+      border-color: var(--accent-blue);
+      color: #fff;
+    }
+
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+    }
+
+    .form-grid-3 {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr;
+      gap: 0.85rem;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .field-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .category-pills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 0.5rem;
+    }
+
+    .cat-pill {
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      padding: 0.55rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .cat-pill:hover { border-color: var(--border-light); }
+    .cat-pill.active {
+      background: rgba(59, 130, 246, 0.15);
+      border-color: var(--accent-blue);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .preview-card-box {
+      background: linear-gradient(145deg, #131d2f 0%, #0d1422 100%);
+      border: 1px solid var(--border-light);
+      border-left: 4px solid var(--accent-blue);
+      border-radius: 10px;
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .preview-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cat-badge {
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .preview-date {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .preview-event-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .preview-time {
+      font-size: 0.88rem;
+      color: var(--text-muted);
       display: flex;
       align-items: center;
       gap: 0.4rem;
     }
-    .status-success { background: rgba(16, 185, 129, 0.15); border: 1px solid var(--success); color: var(--success); }
-    .status-info { background: rgba(59, 130, 246, 0.15); border: 1px solid var(--accent); color: var(--accent); }
+
+    .preview-tags-row {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-top: 0.25rem;
+    }
+
+    .meta-tag {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .btn-main-sync {
+      background: var(--accent-gradient);
+      color: white;
+      border: none;
+      padding: 0.9rem;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+      transition: opacity 0.2s;
+    }
+    .btn-main-sync:hover { opacity: 0.92; }
+
+    .btn-sub-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .btn-sub {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 0.65rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.4rem;
+      transition: background 0.2s;
+    }
+    .btn-sub:hover { background: var(--card-border); }
+
+    .color-map-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.65rem;
+    }
+
+    .color-map-item {
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      padding: 0.6rem 0.8rem;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .color-map-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .color-map-name { font-size: 0.8rem; font-weight: 700; }
+    .color-map-gname { font-size: 0.72rem; color: var(--text-muted); }
+
+    .recent-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .recent-item {
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      padding: 0.65rem 0.8rem;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 1.5rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
 
     .hidden { display: none !important; }
 
-    /* Color Swatches */
+    /* Swatches */
     .color-1 { background-color: #a4bdfc; color: #111; }
     .color-2 { background-color: #7ae7bf; color: #111; }
     .color-3 { background-color: #dbadff; color: #111; }
@@ -225,89 +412,188 @@
 </head>
 <body>
 
-  <div class="container">
+  <div class="app-wrapper">
     <header>
-      <h1>⚡ Quick Cal</h1>
-      <button class="secondary" onclick="toggleSettings()">⚙️ Settings</button>
+      <div class="brand-title">⚡ Quick Cal</div>
+      <button class="btn-settings" onclick="toggleSettings()">⚙️ Settings & Credentials</button>
     </header>
 
-    <!-- MAIN APP VIEW -->
-    <main id="main-view">
-      <div class="card">
-        <div class="presets-pills">
-          <span class="pill" onclick="loadPreset('classes')">📚 Classes</span>
-          <span class="pill" onclick="loadPreset('labs')">🧪 Labs</span>
-          <span class="pill" onclick="loadPreset('all')">⚡ All Schedule</span>
-          <span class="pill" onclick="loadPreset('arvp')">🤖 ARVP</span>
-          <span class="pill" onclick="loadPreset('study')">📖 Study</span>
+    <!-- MAIN DASHBOARD -->
+    <div id="mainDashboard" class="dashboard-grid">
+      
+      <!-- LEFT COLUMN -->
+      <div class="col">
+        
+        <!-- CARD 1: SMART INPUT -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">✨ Smart Natural Language Input</span>
+            <span class="badge-auto">✓ Auto Parsing</span>
+          </div>
+          <p class="sub-text">Type single prompts or paste multi-line schedules. Dates, times, rooms, and categories will be auto-detected!</p>
+
+          <textarea id="promptInput" rows="3" placeholder="e.g. 6:15 pm to 9:00 pm ARVP pool test Oct 17 at PAC Pool"></textarea>
+
+          <div class="presets-row">
+            <span>Try presets:</span>
+            <button class="pill-btn" onclick="applyPreset('arvp')">ARVP Pool Test</button>
+            <button class="pill-btn" onclick="applyPreset('classes')">Fall Classes</button>
+            <button class="pill-btn" onclick="applyPreset('labs')">All Labs</button>
+            <button class="pill-btn" onclick="applyPreset('prep')">Midterm Prep</button>
+            <button class="pill-btn" onclick="applyPreset('study')">Studying</button>
+          </div>
         </div>
 
-        <div>
-          <label for="promptInput">Enter Prompt or Schedule:</label>
-          <textarea id="promptInput" rows="3" placeholder="e.g. Catch up on studying Oct 18 from 2pm to 5pm in Cameron Library"></textarea>
+        <!-- CARD 2: STRUCTURED DETAILS -->
+        <div class="card">
+          <div class="card-title">🎛️ Structured Event Details</div>
+
+          <div class="field-group">
+            <span class="field-label">Subject / Event Title</span>
+            <input type="text" id="fieldTitle" placeholder="Event Title">
+          </div>
+
+          <div class="form-grid-3">
+            <div class="field-group">
+              <span class="field-label">Date</span>
+              <input type="date" id="fieldDate">
+            </div>
+            <div class="field-group">
+              <span class="field-label">Start Time</span>
+              <input type="time" id="fieldStartTime">
+            </div>
+            <div class="field-group">
+              <span class="field-label">End Time</span>
+              <input type="time" id="fieldEndTime">
+            </div>
+          </div>
+
+          <div class="field-group">
+            <div style="display:flex; justify-content:space-between;">
+              <span class="field-label">Category & Color Code</span>
+              <span class="field-label" style="color:var(--accent-blue);" id="selectedCatLabel">Selected: General</span>
+            </div>
+            <div class="category-pills-grid" id="catPillsGrid"></div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="field-group">
+              <span class="field-label">Reminder Timing</span>
+              <select id="fieldReminder">
+                <option value="30">30 Minutes Before</option>
+                <option value="15">15 Minutes Before</option>
+                <option value="60">1 Hour Before</option>
+                <option value="1440">1 Day Before</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <span class="field-label">Notification Method</span>
+              <select id="fieldNotif">
+                <option value="email">Email & Pop-up</option>
+                <option value="popup">Pop-up Only</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <span class="field-label">Location / Notes</span>
+            <input type="text" id="fieldNotes" placeholder="Optional location or additional notes...">
+          </div>
         </div>
 
-        <button onclick="scheduleAllEvents()">Sync to Google Calendar</button>
-
-        <div id="statusBox" class="hidden"></div>
       </div>
 
-      <!-- PARSED PREVIEW -->
-      <div id="previewCard" class="card hidden" style="margin-top: 1rem;">
-        <label>Parsed Event Queue</label>
-        <div id="previewList" style="display: flex; flex-direction: column; gap: 0.5rem;"></div>
+      <!-- RIGHT COLUMN -->
+      <div class="col">
+        
+        <!-- CARD 3: LIVE PREVIEW -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">LIVE CALENDAR CARD PREVIEW</span>
+            <span class="pill-btn" style="cursor:default;" id="durationTag">2h 45m</span>
+          </div>
+
+          <div class="preview-card-box" id="previewCardBox">
+            <div class="preview-top-bar">
+              <span class="cat-badge color-10" id="prevBadge"><span class="dot"></span> <span id="prevBadgeText">ARVP project meeting</span></span>
+              <span class="preview-date" id="prevDateText">Oct 17, 2026</span>
+            </div>
+
+            <div class="preview-event-title" id="prevTitleText">ARVP pool test</div>
+            <div class="preview-time" id="prevTimeText">🕒 6:15 PM – 9:00 PM</div>
+
+            <div class="preview-tags-row">
+              <span class="meta-tag" id="prevReminderTag">✉️ Notification 30m before</span>
+              <span class="meta-tag" id="prevColorTag">🎨 Basil / Dark Green</span>
+            </div>
+          </div>
+
+          <button class="btn-main-sync" onclick="syncToGoogleCalendar()">
+            <span id="syncBtnText">⚡ Add to Google Calendar</span>
+          </button>
+
+          <div class="btn-sub-row">
+            <button class="btn-sub" onclick="downloadICS()">📥 Download .ICS File</button>
+            <button class="btn-sub" onclick="syncToGoogleCalendar()">⚡ 1-Click API Sync</button>
+          </div>
+        </div>
+
+        <!-- CARD 4: COLOR MAPPING -->
+        <div class="card">
+          <div class="card-title">🎨 GOOGLE CALENDAR COLOR MAPPING</div>
+          <div class="color-map-grid" id="colorMapGrid"></div>
+        </div>
+
+        <!-- CARD 5: RECENT BLOCKS -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">🕒 RECENT SCHEDULED BLOCKS</span>
+            <span class="pill-btn" style="cursor:default;" id="recentCount">0</span>
+          </div>
+          <div class="recent-list" id="recentList">
+            <div class="empty-state">No recent events created yet.</div>
+          </div>
+        </div>
+
       </div>
-    </main>
+
+    </div>
 
     <!-- SETTINGS VIEW -->
-    <section id="settings-view" class="hidden">
-      <div class="card">
-        <h3>Google API Credentials</h3>
-        <label style="font-size:0.75rem;">OAuth Client ID:</label>
-        <input type="text" id="clientIdInput" placeholder="Paste Client ID here">
-        <button onclick="saveClientId()">Save Client ID</button>
+    <div id="settingsView" class="card hidden">
+      <div class="card-title">⚙️ App Settings & API Credentials</div>
+      
+      <div class="field-group">
+        <span class="field-label">Google OAuth Client ID</span>
+        <input type="text" id="clientIdInput" placeholder="Paste .apps.googleusercontent.com ID here">
+        <button class="btn-main-sync" style="margin-top:0.5rem; padding:0.6rem;" onclick="saveClientId()">Save Credentials</button>
       </div>
 
-      <div class="card" style="margin-top: 1rem;">
-        <h3>Category Manager</h3>
-        <div id="categoryList"></div>
+      <hr style="border:0; border-top:1px solid var(--card-border);">
 
-        <hr style="border:0; border-top: 1px solid var(--border); margin: 0.5rem 0;">
+      <div class="card-title">Manage Categories</div>
+      <div class="category-pills-grid" id="manageCatList"></div>
 
-        <label style="font-size:0.75rem;">Add Category</label>
-        <input type="text" id="newCatName" placeholder="Category Name (e.g. Studying)">
-        <input type="text" id="newCatKeywords" placeholder="Keywords (e.g. study, homework, exam)">
-        
-        <label style="font-size:0.75rem;">Google Calendar Color:</label>
-        <select id="newCatColor">
-          <option value="9">Blueberry (Blue - Classes)</option>
-          <option value="11">Tomato (Red - Labs & Exams)</option>
-          <option value="3">Grape (Purple - Studying)</option>
-          <option value="7">Peacock (Cyan - Clubs/ARVP)</option>
-          <option value="5">Banana (Yellow - Projects)</option>
-          <option value="6">Tangerine (Orange - Work)</option>
-          <option value="10">Basil (Green - Gym/Personal)</option>
-        </select>
+      <button class="btn-settings" style="margin-top:1rem; width:100%;" onclick="toggleSettings()">← Back to Dashboard</button>
+    </div>
 
-        <button onclick="addCategory()">Add Category</button>
-      </div>
-
-      <button class="secondary" style="margin-top: 1rem; width:100%;" onclick="toggleSettings()">← Back to App</button>
-    </section>
   </div>
 
   <script>
-    // --- PRESETS ---
-    const HARDCODED_CLASSES = `ECE 370 Lecture A2 at NRE 2-001 every Tue/Thu 8:00am to 9:20am
+    // --- SCHEDULE PRESETS ---
+    const PRESETS = {
+      arvp: "6:15 pm to 9:00 pm ARVP pool test Oct 17 at PAC Pool",
+      prep: "Midterm Prep ECE 302 Oct 20 2:00pm to 5:00pm in Cameron Library",
+      study: "Catch up on studying ECE 312 Oct 18 1:00pm to 4:00pm",
+      classes: `ECE 370 Lecture A2 at NRE 2-001 every Tue/Thu 8:00am to 9:20am
 MATH 309 Lecture A1 at ETLC E1-013 every MWF 9:00am to 9:50am
 ECE 312 Lecture A1 at ETLC E1-013 every Tue/Thu 9:30am to 10:50am
 ECE 302 Lecture A2 at CCIS L2-190 every MWF 10:00am to 10:50am
 ECE 330 Lecture A1 at ETLC E1-017 every MWF 11:00am to 11:50am
 ECE 340 Lecture A1 at MEC 2-1 every Tue/Thu 11:00am to 12:20pm
 ECE 370 Seminar E12 at ETLC E2-001 every Monday 12:00pm to 12:50pm
-ECE 302 Seminar E32 at ED 129 every Wednesday 12:00pm to 12:50pm`;
-
-    const HARDCODED_LABS = `ECE 330 Lab 1 D12 at ECERF W1-001 Sep 21 2:00pm to 4:50pm
+ECE 302 Seminar E32 at ED 129 every Wednesday 12:00pm to 12:50pm`,
+      labs: `ECE 330 Lab 1 D12 at ECERF W1-001 Sep 21 2:00pm to 4:50pm
 ECE 330 Lab 2 D12 at ECERF W1-001 Oct 26 2:00pm to 4:50pm
 ECE 330 Lab 3 D12 at ECERF W1-001 Nov 23 2:00pm to 4:50pm
 ECE 340 Lab 0 D21 at ETLC E5-012 Sep 8 2:00pm to 4:50pm
@@ -326,43 +612,66 @@ ECE 302 Lab 1 D42 at ETLC E4-001 Sep 24 2:00pm to 4:50pm
 ECE 302 Lab 2 D42 at ETLC E4-001 Oct 15 2:00pm to 4:50pm
 ECE 302 Lab 3 D42 at ETLC E4-001 Oct 29 2:00pm to 4:50pm
 ECE 302 Lab 4 D42 at ETLC E4-001 Nov 19 2:00pm to 4:50pm
-ECE 302 Lab 5 D42 at ETLC E4-001 Dec 3 2:00pm to 4:50pm`;
+ECE 302 Lab 5 D42 at ETLC E4-001 Dec 3 2:00pm to 4:50pm`
+    };
 
-    const PRESET_ARVP = "ARVP Pool Test at PAC Pool Oct 20 6:15pm to 9:00pm";
-    const PRESET_STUDY = "Catch up on studying ECE 302 Oct 18 2:00pm to 5:00pm in Cameron Library";
+    const GOOGLE_COLOR_NAMES = {
+      "1": "Lavender / Light Blue",
+      "2": "Sage / Mint Green",
+      "3": "Grape / Purple",
+      "4": "Flamingo / Coral",
+      "5": "Banana / Yellow",
+      "6": "Tangerine / Orange",
+      "7": "Peacock / Cyan",
+      "8": "Graphite / Gray",
+      "9": "Blueberry / Blue",
+      "10": "Basil / Dark Green",
+      "11": "Tomato / Red"
+    };
 
     const DEFAULT_CATEGORIES = [
-      { name: "Lectures / Classes", colorId: "9", keywords: ["lecture", "class", "ece", "cmput", "encmp", "math", "phys", "chem", "stat", "engg"] },
-      { name: "Labs & Seminars", colorId: "11", keywords: ["lab", "seminar", "demo", "checkout", "tutorial"] },
-      { name: "Studying & HW", colorId: "3", keywords: ["study", "studying", "hw", "homework", "assignment", "catch up", "review", "prep", "reading"] },
-      { name: "Clubs & Teams", colorId: "7", keywords: ["arvp", "club", "team", "robotics", "formula", "meeting"] },
-      { name: "Personal Projects", colorId: "5", keywords: ["project", "side project", "dev", "code", "github"] },
-      { name: "Exams & Midterms", colorId: "4", keywords: ["midterm", "exam", "final", "quiz"] }
+      { name: "ARVP project meeting", colorId: "10", keywords: ["arvp", "pool", "robotics"] },
+      { name: "Lectures / Classes", colorId: "9", keywords: ["lecture", "class", "ece", "math", "cmput"] },
+      { name: "Labs & Seminars", colorId: "11", keywords: ["lab", "seminar", "demo"] },
+      { name: "Studying", colorId: "3", keywords: ["study", "studying", "reading", "hw", "review"] },
+      { name: "Midterm Prep", colorId: "4", keywords: ["midterm", "exam", "prep", "test"] },
+      { name: "Work on project", colorId: "7", keywords: ["code", "github", "work", "project"] }
     ];
 
     let categories = JSON.parse(localStorage.getItem("quickcal_categories")) || DEFAULT_CATEGORIES;
     let clientId = localStorage.getItem("quickcal_client_id") || "";
-    let cachedAccessToken = null;
-    let parsedEventsStore = [];
+    let recentBlocks = JSON.parse(localStorage.getItem("quickcal_recent")) || [];
+    let activeCategory = categories[0];
+    let isBatchMode = false;
+    let parsedBatchEvents = [];
 
     document.getElementById("clientIdInput").value = clientId;
 
-    document.getElementById("promptInput").addEventListener("input", parseAndPreview);
+    function init() {
+      renderCategoryPills();
+      renderColorMappingGrid();
+      renderRecentBlocks();
+      
+      document.getElementById("promptInput").value = PRESETS.arvp;
+      parsePromptToForm();
 
-    function loadPreset(type) {
-      const area = document.getElementById("promptInput");
-      if (type === 'classes') area.value = HARDCODED_CLASSES;
-      else if (type === 'labs') area.value = HARDCODED_LABS;
-      else if (type === 'all') area.value = HARDCODED_CLASSES + "\n" + HARDCODED_LABS;
-      else if (type === 'arvp') area.value = PRESET_ARVP;
-      else if (type === 'study') area.value = PRESET_STUDY;
-      parseAndPreview();
+      document.getElementById("promptInput").addEventListener("input", parsePromptToForm);
+      document.getElementById("fieldTitle").addEventListener("input", updatePreviewFromFields);
+      document.getElementById("fieldDate").addEventListener("change", updatePreviewFromFields);
+      document.getElementById("fieldStartTime").addEventListener("change", updatePreviewFromFields);
+      document.getElementById("fieldEndTime").addEventListener("change", updatePreviewFromFields);
+      document.getElementById("fieldReminder").addEventListener("change", updatePreviewFromFields);
+      document.getElementById("fieldNotes").addEventListener("input", updatePreviewFromFields);
+    }
+
+    function applyPreset(type) {
+      document.getElementById("promptInput").value = PRESETS[type];
+      parsePromptToForm();
     }
 
     function toggleSettings() {
-      document.getElementById("main-view").classList.toggle("hidden");
-      document.getElementById("settings-view").classList.toggle("hidden");
-      renderCategories();
+      document.getElementById("mainDashboard").classList.toggle("hidden");
+      document.getElementById("settingsView").classList.toggle("hidden");
     }
 
     function saveClientId() {
@@ -371,78 +680,36 @@ ECE 302 Lab 5 D42 at ETLC E4-001 Dec 3 2:00pm to 4:50pm`;
       alert("Client ID saved!");
     }
 
-    function renderCategories() {
-      const container = document.getElementById("categoryList");
-      container.innerHTML = "";
-      categories.forEach((cat, index) => {
-        const div = document.createElement("div");
-        div.className = "cat-item";
-        div.innerHTML = `
-          <div>
-            <strong><span class="tag color-${cat.colorId}">${cat.name}</span></strong>
-            <br><small style="color:var(--text-muted);">${cat.keywords.join(", ")}</small>
-          </div>
-          <button class="btn-danger" onclick="deleteCategory(${index})">Delete</button>
-        `;
-        container.appendChild(div);
-      });
-    }
-
-    function addCategory() {
-      const name = document.getElementById("newCatName").value.trim();
-      const keywordsRaw = document.getElementById("newCatKeywords").value.trim();
-      const colorId = document.getElementById("newCatColor").value;
-
-      if (!name || !keywordsRaw) return alert("Please enter name and keywords.");
-
-      const keywords = keywordsRaw.split(",").map(k => k.trim().toLowerCase()).filter(k => k);
-      categories.push({ name, colorId, keywords });
-      localStorage.setItem("quickcal_categories", JSON.stringify(categories));
-
-      document.getElementById("newCatName").value = "";
-      document.getElementById("newCatKeywords").value = "";
-      renderCategories();
-    }
-
-    function deleteCategory(index) {
-      categories.splice(index, 1);
-      localStorage.setItem("quickcal_categories", JSON.stringify(categories));
-      renderCategories();
-    }
-
-    // --- RECURRENCE & LOCATION PARSER ---
+    // --- RECURRENCE PARSER WITH TERM END UNTIL CLAUSE ---
     function parseRecurrence(text) {
       const untilClause = ";UNTIL=20261208T235959Z";
+      const lower = text.toLowerCase();
 
-      if (/\bevery\s+(mwf|mon,?\s*wed,?\s*fri)\b/i.test(text) || /\bmwf\b/i.test(text)) {
+      if (/\bevery\s+(mwf|mon,?\s*wed,?\s*fri)\b/i.test(lower) || /\bmwf\b/i.test(lower)) {
         return [`RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR${untilClause}`];
       }
-      if (/\bevery\s+(tue\/thu|tth|tr|tue,?\s*thu)\b/i.test(text) || /\btue\/thu\b/i.test(text) || /\btth\b/i.test(text)) {
+      if (/\bevery\s+(tue\/thu|tth|tr|tue,?\s*thu)\b/i.test(lower) || /\btue\/thu\b/i.test(lower) || /\btth\b/i.test(lower)) {
         return [`RRULE:FREQ=WEEKLY;BYDAY=TU,TH${untilClause}`];
       }
-      if (/\bevery\s+monday\b/i.test(text)) return [`RRULE:FREQ=WEEKLY;BYDAY=MO${untilClause}`];
-      if (/\bevery\s+tuesday\b/i.test(text)) return [`RRULE:FREQ=WEEKLY;BYDAY=TU${untilClause}`];
-      if (/\bevery\s+wednesday\b/i.test(text)) return [`RRULE:FREQ=WEEKLY;BYDAY=WE${untilClause}`];
-      if (/\bevery\s+thursday\b/i.test(text)) return [`RRULE:FREQ=WEEKLY;BYDAY=TH${untilClause}`];
-      if (/\bevery\s+friday\b/i.test(text)) return [`RRULE:FREQ=WEEKLY;BYDAY=FR${untilClause}`];
+      if (/\bevery\s+monday\b/i.test(lower)) return [`RRULE:FREQ=WEEKLY;BYDAY=MO${untilClause}`];
+      if (/\bevery\s+tuesday\b/i.test(lower)) return [`RRULE:FREQ=WEEKLY;BYDAY=TU${untilClause}`];
+      if (/\bevery\s+wednesday\b/i.test(lower)) return [`RRULE:FREQ=WEEKLY;BYDAY=WE${untilClause}`];
+      if (/\bevery\s+thursday\b/i.test(lower)) return [`RRULE:FREQ=WEEKLY;BYDAY=TH${untilClause}`];
+      if (/\bevery\s+friday\b/i.test(lower)) return [`RRULE:FREQ=WEEKLY;BYDAY=FR${untilClause}`];
 
       return null;
     }
 
-    function parseLocation(text) {
-      const locMatch = text.match(/(?:\bat|\bin)\s+([A-Z0-9\-\s]{2,25})(?=\s+(?:every|from|on|\d|oct|nov|dec|jan|feb|mar|apr|may|jun|jul|aug|sep)|$)/i);
-      return locMatch ? locMatch[1].trim() : "";
-    }
-
-    // --- LINE PARSER ---
+    // --- SINGLE LINE PARSER FUNCTION ---
     function parseSingleLine(line) {
       const lower = line.toLowerCase();
+      let cat = categories.find(c => c.keywords.some(kw => lower.includes(kw))) || categories[0];
       
-      let cat = categories.find(c => c.keywords.some(kw => lower.includes(kw))) || { name: "General", colorId: "1" };
-      let location = parseLocation(line);
-      let recurrence = parseRecurrence(line);
+      const locMatch = line.match(/(?:\bat|\bin)\s+([A-Z0-9\-\s]{2,25})/i);
+      const location = locMatch ? locMatch[1].trim() : "";
+      const recurrence = parseRecurrence(line);
 
-      const now = new Date();
+      const now = new Date(2026, 8, 1); // Fall 2026 Term Start
       let targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
       const monthMap = { jan:0, feb:1, mar:2, apr:3, may:4, jun:5, jul:6, aug:7, sep:8, oct:9, nov:10, dec:11 };
@@ -450,9 +717,7 @@ ECE 302 Lab 5 D42 at ETLC E4-001 Dec 3 2:00pm to 4:50pm`;
 
       if (dateMatch) {
         targetDate.setMonth(monthMap[dateMatch[1].substring(0, 3)], parseInt(dateMatch[2], 10));
-        if (targetDate < now && (now - targetDate) > 86400000 * 30) targetDate.setFullYear(now.getFullYear() + 1);
-      } else if (lower.includes("tomorrow")) {
-        targetDate.setDate(targetDate.getDate() + 1);
+        targetDate.setFullYear(2026);
       }
 
       let startH = 14, startM = 0, endH = 15, endM = 0;
@@ -480,86 +745,181 @@ ECE 302 Lab 5 D42 at ETLC E4-001 Dec 3 2:00pm to 4:50pm`;
         .replace(/\bevery\s+[a-z,\/\s]+/gi, "")
         .replace(/\b(mwf|tth|tue\/thu|tr)\b/gi, "")
         .replace(/(?:\bat|\bin)\s+[A-Z0-9\-\s]{2,25}/gi, "")
-        .replace(/\btomorrow\b/gi, "")
         .replace(/\s+/g, " ")
         .trim();
 
-      if (!cleanTitle) cleanTitle = line;
-
-      return { title: cleanTitle, category: cat.name, colorId: cat.colorId, location, recurrence, start, end };
+      return { title: cleanTitle || line, category: cat.name, colorId: cat.colorId, location, recurrence, start, end };
     }
 
-    function parseAndPreview() {
+    // --- PARSER ENGINE ---
+    function parsePromptToForm() {
       const text = document.getElementById("promptInput").value.trim();
-      if (!text) {
-        document.getElementById("previewCard").classList.add("hidden");
-        parsedEventsStore = [];
+      if (!text) return;
+
+      const lines = text.split("\n").map(l => l.trim()).filter(l => l.length > 0);
+
+      if (lines.length > 1) {
+        // MULTI-LINE BATCH MODE
+        isBatchMode = true;
+        parsedBatchEvents = lines.map(parseSingleLine);
+
+        document.getElementById("prevTitleText").innerText = `Batch Schedule (${parsedBatchEvents.length} Events)`;
+        document.getElementById("prevDateText").innerText = "Fall 2026 Term";
+        document.getElementById("prevTimeText").innerText = `🕒 Multiple Class & Lab Times`;
+        document.getElementById("syncBtnText").innerText = `⚡ Add ${parsedBatchEvents.length} Events to Google Calendar`;
+        document.getElementById("durationTag").innerText = `${parsedBatchEvents.length} Events`;
+        document.getElementById("prevBadgeText").innerText = "Multi-Line Batch Schedule";
+        
+        document.getElementById("fieldTitle").value = `Batch Import (${parsedBatchEvents.length} Events)`;
+        document.getElementById("fieldNotes").value = `Contains: ${parsedBatchEvents.map(e => e.title).slice(0, 3).join(", ")}...`;
         return;
       }
 
-      const lines = text.split("\n").map(l => l.trim()).filter(l => l.length > 0);
-      parsedEventsStore = lines.map(parseSingleLine);
-      renderPreviewList(parsedEventsStore);
+      // SINGLE EVENT MODE
+      isBatchMode = false;
+      parsedBatchEvents = [];
+      document.getElementById("syncBtnText").innerText = "⚡ Add to Google Calendar";
+
+      const parsed = parseSingleLine(text);
+      activeCategory = categories.find(c => c.name === parsed.category) || categories[0];
+      selectCategory(activeCategory.name);
+
+      const yyyy = parsed.start.getFullYear();
+      const mm = String(parsed.start.getMonth() + 1).padStart(2, '0');
+      const dd = String(parsed.start.getDate()).padStart(2, '0');
+      document.getElementById("fieldDate").value = `${yyyy}-${mm}-${dd}`;
+
+      document.getElementById("fieldStartTime").value = `${String(parsed.start.getHours()).padStart(2, '0')}:${String(parsed.start.getMinutes()).padStart(2, '0')}`;
+      document.getElementById("fieldEndTime").value = `${String(parsed.end.getHours()).padStart(2, '0')}:${String(parsed.end.getMinutes()).padStart(2, '0')}`;
+
+      if (parsed.location) document.getElementById("fieldNotes").value = `Location: ${parsed.location}`;
+      document.getElementById("fieldTitle").value = parsed.title;
+
+      updatePreviewFromFields();
     }
 
-    function removeEvent(idx) {
-      parsedEventsStore.splice(idx, 1);
-      renderPreviewList(parsedEventsStore);
-    }
-
-    function renderPreviewList(events) {
-      const container = document.getElementById("previewList");
+    function renderCategoryPills() {
+      const container = document.getElementById("catPillsGrid");
       container.innerHTML = "";
-      document.getElementById("previewCard").classList.remove("hidden");
 
-      events.forEach((ev, idx) => {
+      categories.forEach(cat => {
+        const pill = document.createElement("div");
+        pill.className = `cat-pill ${cat.name === activeCategory.name ? 'active' : ''}`;
+        pill.innerHTML = `<span class="dot color-${cat.colorId}"></span> ${cat.name}`;
+        pill.onclick = () => {
+          activeCategory = cat;
+          renderCategoryPills();
+          updatePreviewFromFields();
+        };
+        container.appendChild(pill);
+      });
+
+      document.getElementById("selectedCatLabel").innerText = `Selected: ${activeCategory.name}`;
+    }
+
+    function selectCategory(name) {
+      const found = categories.find(c => c.name === name);
+      if (found) {
+        activeCategory = found;
+        renderCategoryPills();
+      }
+    }
+
+    function updatePreviewFromFields() {
+      if (isBatchMode) return;
+
+      const title = document.getElementById("fieldTitle").value.trim() || "Untitled Event";
+      const dateVal = document.getElementById("fieldDate").value;
+      const startTime = document.getElementById("fieldStartTime").value;
+      const endTime = document.getElementById("fieldEndTime").value;
+      const reminder = document.getElementById("fieldReminder").value;
+
+      document.getElementById("prevTitleText").innerText = title;
+      document.getElementById("prevBadgeText").innerText = activeCategory.name;
+      
+      const badge = document.getElementById("prevBadge");
+      badge.className = `cat-badge color-${activeCategory.colorId}`;
+
+      const cardBox = document.getElementById("previewCardBox");
+      const swatch = document.querySelector(`.color-${activeCategory.colorId}`);
+      if (swatch) cardBox.style.borderLeftColor = window.getComputedStyle(swatch).backgroundColor;
+
+      if (dateVal) {
+        const parts = dateVal.split("-");
+        const d = new Date(parts[0], parts[1] - 1, parts[2]);
+        document.getElementById("prevDateText").innerText = d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+      }
+
+      if (startTime && endTime) {
+        document.getElementById("prevTimeText").innerText = `🕒 ${formatTimeStr(startTime)} – ${formatTimeStr(endTime)}`;
+
+        const [h1, m1] = startTime.split(":").map(Number);
+        const [h2, m2] = endTime.split(":").map(Number);
+        let mins = (h2 * 60 + m2) - (h1 * 60 + m1);
+        if (mins < 0) mins += 1440;
+        const durH = Math.floor(mins / 60);
+        const durM = mins % 60;
+        document.getElementById("durationTag").innerText = `${durH > 0 ? durH + 'h ' : ''}${durM}m`;
+      }
+
+      document.getElementById("prevReminderTag").innerText = `✉️ Notification ${reminder}m before`;
+      document.getElementById("prevColorTag").innerText = `🎨 ${GOOGLE_COLOR_NAMES[activeCategory.colorId] || 'Default Color'}`;
+    }
+
+    function formatTimeStr(time24) {
+      const [h, m] = time24.split(":").map(Number);
+      const suffix = h >= 12 ? "PM" : "AM";
+      const h12 = h % 12 || 12;
+      return `${h12}:${String(m).padStart(2, '0')} ${suffix}`;
+    }
+
+    function renderColorMappingGrid() {
+      const container = document.getElementById("colorMapGrid");
+      container.innerHTML = "";
+
+      categories.forEach(cat => {
         const item = document.createElement("div");
-        item.className = "preview-item";
+        item.className = "color-map-item";
         item.innerHTML = `
-          <div class="preview-body">
-            <div class="preview-title-row">
-              ${ev.title}
-              <span class="tag color-${ev.colorId}">${ev.category}</span>
-            </div>
-            <div class="preview-meta-row">
-              📍 <strong>${ev.location || "No Location"}</strong> | ⏰ <strong>${ev.start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} - ${ev.end.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</strong> | 🔄 <strong>${ev.recurrence ? "Recurring (Until Dec 8)" : "One-time"}</strong>
-            </div>
+          <span class="dot color-${cat.colorId}" style="width:12px; height:12px;"></span>
+          <div class="color-map-info">
+            <span class="color-map-name">${cat.name}</span>
+            <span class="color-map-gname">${GOOGLE_COLOR_NAMES[cat.colorId]}</span>
           </div>
-          <button class="btn-danger" onclick="removeEvent(${idx})">✕</button>
         `;
         container.appendChild(item);
       });
     }
 
-    // --- CALENDAR API PUSH ---
-    function scheduleAllEvents() {
-      if (parsedEventsStore.length === 0) parseAndPreview();
-      if (parsedEventsStore.length === 0) return alert("Please enter or select a schedule preset first.");
+    function renderRecentBlocks() {
+      const container = document.getElementById("recentList");
+      document.getElementById("recentCount").innerText = recentBlocks.length;
 
-      if (!clientId) {
-        alert("Please enter your OAuth Client ID in Settings first.");
-        toggleSettings();
+      if (recentBlocks.length === 0) {
+        container.innerHTML = `<div class="empty-state">No recent events created yet.</div>`;
         return;
       }
 
-      getAccessToken((token) => {
-        let insertedCount = 0;
-        showStatus(`Scheduling ${parsedEventsStore.length} event(s) to Google Calendar...`, "info");
-
-        parsedEventsStore.forEach((ev) => {
-          insertEventToGCal(token, ev, (success) => {
-            if (success) insertedCount++;
-            if (insertedCount === parsedEventsStore.length) {
-              showStatus(`✅ Added ${insertedCount} event(s) to Google Calendar!`, "success");
-            }
-          });
-        });
+      container.innerHTML = "";
+      recentBlocks.slice(-5).reverse().forEach(b => {
+        const item = document.createElement("div");
+        item.className = "recent-item";
+        item.innerHTML = `
+          <div>
+            <strong>${b.title}</strong>
+            <br><small style="color:var(--text-muted);">${b.date} @ ${b.time}</small>
+          </div>
+          <span class="cat-badge color-${b.colorId}">${b.category}</span>
+        `;
+        container.appendChild(item);
       });
     }
 
-    function getAccessToken(callback) {
-      if (cachedAccessToken) {
-        callback(cachedAccessToken);
+    // --- GOOGLE CALENDAR API & ICS SYNC ---
+    function syncToGoogleCalendar() {
+      if (!clientId) {
+        alert("Please set up your OAuth Client ID in Settings first.");
+        toggleSettings();
         return;
       }
 
@@ -568,49 +928,107 @@ ECE 302 Lab 5 D42 at ETLC E4-001 Dec 3 2:00pm to 4:50pm`;
         scope: "https://www.googleapis.com/auth/calendar.events",
         callback: (resp) => {
           if (resp.access_token) {
-            cachedAccessToken = resp.access_token;
-            callback(resp.access_token);
-          } else {
-            alert("Authorization failed. Ensure your email is added under Test Users in Google Cloud Console.");
+            if (isBatchMode && parsedBatchEvents.length > 0) {
+              // MULTI-LINE BATCH PUSH
+              let insertedCount = 0;
+              parsedBatchEvents.forEach(ev => {
+                const payload = {
+                  summary: `[${ev.category}] ${ev.title}`,
+                  location: ev.location,
+                  colorId: ev.colorId,
+                  start: { dateTime: ev.start.toISOString() },
+                  end: { dateTime: ev.end.toISOString() },
+                  reminders: { useDefault: false, overrides: [{ method: "email", minutes: 30 }] }
+                };
+                if (ev.recurrence) payload.recurrence = ev.recurrence;
+
+                fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events", {
+                  method: "POST",
+                  headers: { "Authorization": `Bearer ${resp.access_token}`, "Content-Type": "application/json" },
+                  body: JSON.stringify(payload)
+                })
+                .then(res => res.json())
+                .then(data => {
+                  if (data.id) insertedCount++;
+                  if (insertedCount === parsedBatchEvents.length) {
+                    alert(`✅ Added all ${insertedCount} schedule events to Google Calendar!`);
+                    recentBlocks.push({ title: `Batch (${insertedCount} Events)`, date: "Fall 2026", time: "Term Schedule", category: "Schedule", colorId: "9" });
+                    localStorage.setItem("quickcal_recent", JSON.stringify(recentBlocks));
+                    renderRecentBlocks();
+                  }
+                });
+              });
+            } else {
+              // SINGLE EVENT PUSH
+              const title = document.getElementById("fieldTitle").value.trim();
+              const dateVal = document.getElementById("fieldDate").value;
+              const startTime = document.getElementById("fieldStartTime").value;
+              const endTime = document.getElementById("fieldEndTime").value;
+              const notes = document.getElementById("fieldNotes").value;
+              const reminder = parseInt(document.getElementById("fieldReminder").value, 10);
+
+              const startDT = new Date(`${dateVal}T${startTime}:00`);
+              const endDT = new Date(`${dateVal}T${endTime}:00`);
+
+              const eventPayload = {
+                summary: `[${activeCategory.name}] ${title}`,
+                description: notes,
+                colorId: activeCategory.colorId,
+                start: { dateTime: startDT.toISOString() },
+                end: { dateTime: endDT.toISOString() },
+                reminders: { useDefault: false, overrides: [{ method: "email", minutes: reminder }] }
+              };
+
+              fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events", {
+                method: "POST",
+                headers: { "Authorization": `Bearer ${resp.access_token}`, "Content-Type": "application/json" },
+                body: JSON.stringify(eventPayload)
+              })
+              .then(res => res.json())
+              .then(data => {
+                if (data.id) {
+                  alert(`✅ Successfully added "${title}" to your Google Calendar!`);
+                  recentBlocks.push({ title, date: dateVal, time: `${startTime}-${endTime}`, category: activeCategory.name, colorId: activeCategory.colorId });
+                  localStorage.setItem("quickcal_recent", JSON.stringify(recentBlocks));
+                  renderRecentBlocks();
+                } else {
+                  alert("Error: " + JSON.stringify(data));
+                }
+              });
+            }
           }
         }
       });
+
       tokenClient.requestAccessToken();
     }
 
-    function insertEventToGCal(token, ev, onDone) {
-      const payload = {
-        summary: `[${ev.category}] ${ev.title}`,
-        colorId: ev.colorId,
-        location: ev.location,
-        start: { dateTime: ev.start.toISOString() },
-        end: { dateTime: ev.end.toISOString() },
-        reminders: { useDefault: false, overrides: [{ method: "email", minutes: 30 }] }
-      };
+    function downloadICS() {
+      const title = document.getElementById("fieldTitle").value.trim() || "Event";
+      const dateVal = document.getElementById("fieldDate").value.replace(/-/g, "");
+      const startTime = document.getElementById("fieldStartTime").value.replace(":", "") + "00";
+      const endTime = document.getElementById("fieldEndTime").value.replace(":", "") + "00";
 
-      if (ev.recurrence) payload.recurrence = ev.recurrence;
+      const icsContent = 
+`BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//QuickCal//EN
+BEGIN:VEVENT
+SUMMARY:${title}
+DTSTART:${dateVal}T${startTime}
+DTEND:${dateVal}T${endTime}
+DESCRIPTION:Created with Quick Cal
+END:VEVENT
+END:VCALENDAR`;
 
-      fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events", {
-        method: "POST",
-        headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      })
-      .then(res => res.json())
-      .then(data => onDone(!!data.id))
-      .catch(err => {
-        console.error(err);
-        onDone(false);
-      });
+      const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `${title.replace(/\s+/g, "_")}.ics`;
+      link.click();
     }
 
-    function showStatus(msg, type) {
-      const box = document.getElementById("statusBox");
-      box.className = `status-box status-${type}`;
-      box.innerText = msg;
-      box.classList.remove("hidden");
-    }
-
-    renderCategories();
+    init();
   </script>
 </body>
 </html>
