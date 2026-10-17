@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuickSched - Google Calendar Auto Scheduler</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              500: '#3b82f6',
+              600: '#2563eb',
+              900: '#1e3a8a',
+            },
+            // Google Calendar Color Palette
+            gblue: '#4285F4',      // Studying (Color ID 9)
+            gred: '#D50000',       // Midterm Prep (Color ID 11)
+            gorange: '#F4511E',    // Catch up on project (Color ID 6)
+            gpurple: '#8E24AA',    // Apply to jobs (Color ID 3)
+            gcyan: '#039BE5',      // Work on project (Color ID 7)
+            ggreen: '#0B8043',     // ARVP project meeting (Color ID 10)
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Google Identity Services API (for direct GCal API insert) -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+    .glass-panel {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-blue-500 selection:text-white">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-900/80 sticky top-0 z-40 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
+          <i data-lucide="calendar-plus" class="w-6 h-6 text-white"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-lg text-white flex items-center gap-2">
+            QuickSched
+            <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">Google Cal Sync</span>
+          </h1>
+          <p class="text-xs text-slate-400">Smart Natural Language Event Creator</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <button id="openApiModalBtn" class="flex items-center gap-2 text-xs font-medium px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
+          <i data-lucide="key" class="w-4 h-4 text-amber-400"></i>
+          <span class="hidden sm:inline">Google API Config</span>
+        </button>
+        <button id="clearHistoryBtn" class="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg bg-slate-800/60 hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition">
+          <i data-lucide="trash-2" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Clear Log</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+    <!-- LEFT COLUMN: Inputs & Controls (7 Cols) -->
+    <div class="lg:col-span-7 space-y-6">
+
+      <!-- Natural Language Input Card -->
+      <div class="glass-panel rounded-2xl p-6 shadow-xl relative overflow-hidden">
+        <div class="absolute -top-24 -right-24 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="flex items-center justify-between mb-3">
+          <label for="nlInput" class="text-sm font-semibold text-slate-200 flex items-center gap-2">
+            <i data-lucide="sparkles" class="w-4 h-4 text-blue-400"></i>
+            Smart Natural Language Input
+          </label>
+          <span id="parseStatus" class="text-xs font-medium text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 flex items-center gap-1">
+            <i data-lucide="check" class="w-3 h-3"></i> Auto Parsing
+          </span>
+        </div>
+
+        <p class="text-xs text-slate-400 mb-3">
+          Type or paste event details naturally. Date, start/end times, and task category will be auto-detected!
+        </p>
+
+        <textarea 
+          id="nlInput" 
+          rows="3" 
+          class="w-full bg-slate-900/90 text-slate-100 placeholder-slate-500 rounded-xl p-3.5 border border-slate-700/80 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition text-sm font-mono resize-none"
+          placeholder="e.g. 6:15 pm to 9:00 pm ARVP pool test Oct 17"
+        >6:15 pm to 9:00 pm ARVP pool test Oct 17</textarea>
+
+        <!-- Quick Sample Preset Chips -->
+        <div class="mt-3 flex flex-wrap items-center gap-2">
+          <span class="text-[11px] text-slate-500 font-medium">Try presets:</span>
+          <button onclick="applyPreset('6:15 pm to 9:00 pm ARVP pool test Oct 17')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-md border border-slate-700 transition">
+            ARVP Pool Test
+          </button>
+          <button onclick="applyPreset('2:00pm - 4:00pm Midterm prep CS201 Oct 20')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-md border border-slate-700 transition">
+            Midterm Prep
+          </button>
+          <button onclick="applyPreset('10:00am to 11:30am Apply to jobs tomorrow')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-md border border-slate-700 transition">
+            Apply to Jobs
+          </button>
+          <button onclick="applyPreset('1:00 pm - 3:00 pm Studying Linear Algebra Friday')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-md border border-slate-700 transition">
+            Studying
+          </button>
+        </div>
+      </div>
+
+      <!-- Structured Form Inputs -->
+      <div class="glass-panel rounded-2xl p-6 shadow-xl space-y-5">
+        <h2 class="text-sm font-semibold text-slate-200 border-b border-slate-800 pb-3 flex items-center gap-2">
+          <i data-lucide="sliders" class="w-4 h-4 text-indigo-400"></i>
+          Structured Event Details
+        </h2>
+
+        <div class="space-y-4">
+          <!-- Event Title -->
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Subject / Event Title</label>
+            <div class="relative">
+              <input 
+                type="text" 
+                id="eventTitle" 
+                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                placeholder="ARVP pool test"
+              />
+            </div>
+          </div>
+
+          <!-- Date & Time Row -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">Date</label>
+              <input 
+                type="date" 
+                id="eventDate" 
+                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:border-blue-500 outline-none font-mono"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">Start Time</label>
+              <input 
+                type="time" 
+                id="startTime" 
+                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:border-blue-500 outline-none font-mono"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">End Time</label>
+              <input 
+                type="time" 
+                id="endTime" 
+                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:border-blue-500 outline-none font-mono"
+              />
+            </div>
+          </div>
+
+          <!-- Category Selection Pill Selector -->
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <label class="text-xs font-medium text-slate-400">Category & Color Code</label>
+              <span id="detectedCatBadge" class="text-[11px] text-slate-400 italic">Auto-detected category</span>
+            </div>
+
+            <div id="categoryPillContainer" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <!-- Dynamically populated category buttons -->
+            </div>
+          </div>
+
+          <!-- Reminder Settings -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">Reminder Timing</label>
+              <select id="reminderTime" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:border-blue-500 outline-none">
+                <option value="15">15 Minutes Before</option>
+                <option value="30" selected>30 Minutes Before</option>
+                <option value="60">1 Hour Before</option>
+                <option value="1440">1 Day Before</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">Notification Method</label>
+              <select id="reminderMethod" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:border-blue-500 outline-none">
+                <option value="email">Email Notification</option>
+                <option value="popup">Pop-up Notification</option>
+                <option value="both" selected>Email & Pop-up</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Additional Notes / Description -->
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Description / Notes</label>
+            <input 
+              type="text" 
+              id="eventDescription" 
+              class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:border-blue-500 outline-none"
+              placeholder="Optional additional notes..."
+            />
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN: Preview & Export Options (5 Cols) -->
+    <div class="lg:col-span-5 space-y-6">
+
+      <!-- Live Event Card Preview -->
+      <div class="glass-panel rounded-2xl p-6 shadow-xl relative">
+        <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-4 flex items-center justify-between">
+          <span>Live Calendar Card Preview</span>
+          <span id="durationTag" class="normal-case font-mono text-[11px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700">2h 45m</span>
+        </h2>
+
+        <div id="previewCard" class="rounded-2xl p-5 border transition-all duration-300 relative overflow-hidden bg-slate-900/90 shadow-2xl">
+          <!-- Category Accent Color Bar -->
+          <div id="previewColorBar" class="absolute top-0 left-0 bottom-0 w-2.5 bg-ggreen"></div>
+
+          <div class="pl-3">
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span id="previewCategoryBadge" class="text-xs font-semibold px-2.5 py-0.5 rounded-full text-white bg-ggreen flex items-center gap-1.5 shadow-sm">
+                <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                ARVP project meeting
+              </span>
+              <span id="previewDate" class="text-xs font-mono text-slate-400">Oct 17, 2026</span>
+            </div>
+
+            <h3 id="previewTitle" class="text-lg font-bold text-slate-100 mb-1 leading-snug">
+              ARVP pool test
+            </h3>
+
+            <div class="flex items-center text-xs font-mono text-slate-300 gap-2 mb-3">
+              <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-400"></i>
+              <span id="previewTimeRange">6:15 PM – 9:00 PM</span>
+            </div>
+
+            <div class="flex flex-wrap gap-2 text-[11px] text-slate-400 border-t border-slate-800/80 pt-3">
+              <div class="flex items-center gap-1 bg-slate-800/60 px-2 py-1 rounded border border-slate-700/50">
+                <i data-lucide="mail" class="w-3 h-3 text-blue-400"></i>
+                <span id="previewReminderText">Email 30m before</span>
+              </div>
+              <div class="flex items-center gap-1 bg-slate-800/60 px-2 py-1 rounded border border-slate-700/50">
+                <i data-lucide="palette" class="w-3 h-3 text-purple-400"></i>
+                <span id="previewColorName">Basil / Dark Green</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Primary Action Buttons -->
+        <div class="mt-5 space-y-2.5">
+          <button 
+            id="gcalDirectBtn"
+            class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2 text-sm transition transform active:scale-[0.99]"
+          >
+            <i data-lucide="external-link" class="w-4 h-4"></i>
+            Add to Google Calendar
+          </button>
+
+          <div class="grid grid-cols-2 gap-2">
+            <button 
+              id="icsDownloadBtn"
+              class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 py-2.5 px-3 rounded-xl font-medium text-xs flex items-center justify-center gap-1.5 transition"
+            >
+              <i data-lucide="download" class="w-3.5 h-3.5 text-emerald-400"></i>
+              Download .ICS File
+            </button>
+            <button 
+              id="directApiInsertBtn"
+              class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 py-2.5 px-3 rounded-xl font-medium text-xs flex items-center justify-center gap-1.5 transition"
+            >
+              <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i>
+              1-Click API Sync
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Color Legend Reference -->
+      <div class="glass-panel rounded-2xl p-5 shadow-xl">
+        <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-1.5">
+          <i data-lucide="palette" class="w-3.5 h-3.5 text-blue-400"></i>
+          Google Calendar Color Mapping
+        </h3>
+        <div class="grid grid-cols-2 gap-2 text-xs" id="legendGrid">
+          <!-- Dynamically filled -->
+        </div>
+      </div>
+
+      <!-- Recent History / Created Blocks -->
+      <div class="glass-panel rounded-2xl p-5 shadow-xl">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+            <i data-lucide="history" class="w-3.5 h-3.5 text-indigo-400"></i>
+            Recent Scheduled Blocks
+          </h3>
+          <span id="historyCount" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full font-mono">0</span>
+        </div>
+
+        <div id="historyList" class="space-y-2 max-h-56 overflow-y-auto pr-1">
+          <p class="text-xs text-slate-500 italic py-2 text-center">No recent events created yet.</p>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Google API Configuration Modal -->
+  <div id="apiModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="glass-panel max-w-md w-full rounded-2xl p-6 shadow-2xl relative border border-slate-700">
+      <button id="closeApiModalBtn" class="absolute top-4 right-4 text-slate-400 hover:text-slate-200">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20">
+          <i data-lucide="key" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-slate-100 text-base">Direct Google Calendar API</h3>
+          <p class="text-xs text-slate-400">1-click insert directly into your Google Calendar</p>
+        </div>
+      </div>
+
+      <div class="space-y-4 text-xs text-slate-300">
+        <p>
+          To enable 1-Click direct insertion with native Google Calendar event colors (`colorId`), enter your Google Cloud OAuth Client ID below.
+        </p>
+        
+        <div>
+          <label class="block font-medium text-slate-300 mb-1">OAuth 2.0 Client ID</label>
+          <input 
+            type="text" 
+            id="googleClientIdInput"
+            placeholder="YOUR_CLIENT_ID.apps.googleusercontent.com"
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 font-mono focus:border-blue-500 outline-none"
+          />
+        </div>
+
+        <div class="bg-slate-900/80 rounded-xl p-3 border border-slate-800 text-[11px] text-slate-400 space-y-1">
+          <p class="font-semibold text-slate-300">How to get a Client ID:</p>
+          <ol class="list-decimal list-inside space-y-0.5">
+            <li>Go to <a href="https://console.cloud.google.com/" target="_blank" class="text-blue-400 underline">Google Cloud Console</a>.</li>
+            <li>Enable the <b>Google Calendar API</b>.</li>
+            <li>Create OAuth 2.0 Client ID for Web Application.</li>
+            <li>Add your web origin to Authorized JavaScript Origins.</li>
+          </ol>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button id="saveClientIdBtn" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-2 rounded-xl text-xs transition">
+            Save Credentials
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
+
+  <!-- JavaScript Logic -->
+  <script>
+    // Categories and Google Calendar Color IDs Mapping
+    // Google Calendar Standard Colors:
+    // ID 9  : Blueberry (#5484ed / #4285F4)
+    // ID 11 : Tomato (#dc2127 / #D50000)
+    // ID 6  : Tangerine (#ffb878 / #F4511E)
+    // ID 3  : Grape (#dbadff / #8E24AA)
+    // ID 7  : Peacock (#46d6db / #039BE5)
+    // ID 10 : Basil (#51b749 / #0B8043)
+    const CATEGORIES = [
+      {
+        id: 'ARVP project meeting',
+        label: 'ARVP project meeting',
+        colorHex: '#0B8043',
+        gcalColorId: '10',
+        colorName: 'Basil / Dark Green',
+        keywords: ['arvp', 'pool test', 'arvp meeting', 'sub', 'auv']
+      },
+      {
+        id: 'Studying',
+        label: 'Studying',
+        colorHex: '#4285F4',
+        gcalColorId: '9',
+        colorName: 'Blueberry / Blue',
+        keywords: ['study', 'studying', 'read', 'reading', 'review', 'lecture', 'notes']
+      },
+      {
+        id: 'Midterm Prep',
+        label: 'Midterm Prep',
+        colorHex: '#D50000',
+        gcalColorId: '11',
+        colorName: 'Tomato / Red',
+        keywords: ['midterm', 'prep', 'exam', 'test', 'quiz', 'finals', 'revision']
+      },
+      {
+        id: 'Catch up on project',
+        label: 'Catch up on project',
+        colorHex: '#F4511E',
+        gcalColorId: '6',
+        colorName: 'Tangerine / Orange',
+        keywords: ['catch up', 'backlog', 'todo', 'catchup', 'overdue']
+      },
+      {
+        id: 'Apply to jobs',
+        label: 'Apply to jobs',
+        colorHex: '#8E24AA',
+        gcalColorId: '3',
+        colorName: 'Grape / Purple',
+        keywords: ['job', 'apply', 'resume', 'cv', 'interview', 'application', 'career', 'linkedin']
+      },
+      {
+        id: 'Work on project',
+        label: 'Work on project',
+        colorHex: '#039BE5',
+        gcalColorId: '7',
+        colorName: 'Peacock / Cyan',
+        keywords: ['work on', 'coding', 'project', 'dev', 'build', 'lab', 'assignment', 'cs']
+      }
+    ];
+
+    // State Variables
+    let currentCategory = CATEGORIES[0]; // Default ARVP
+    let historyList = JSON.parse(localStorage.getItem('quick_sched_history') || '[]');
+    let googleClientId = localStorage.getItem('quick_sched_client_id') || '';
+
+    // Initialize App
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      initCategoryPills();
+      initLegend();
+      setDefaultDates();
+      setupEventListeners();
+      parseInput(document.getElementById('nlInput').value);
+      renderHistory();
+
+      if (googleClientId) {
+        document.getElementById('googleClientIdInput').value = googleClientId;
+      }
+    });
+
+    // Render Category Selector Pills
+    function initCategoryPills() {
+      const container = document.getElementById('categoryPillContainer');
+      container.innerHTML = '';
+
+      CATEGORIES.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.dataset.catId = cat.id;
+        btn.className = `category-pill flex items-center gap-2 p-2 rounded-xl border text-xs font-medium text-left transition ${
+          cat.id === currentCategory.id 
+            ? 'bg-slate-800 border-slate-500 text-white shadow' 
+            : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:bg-slate-800/80 hover:text-slate-200'
+        }`;
+        
+        btn.innerHTML = `
+          <span class="w-3 h-3 rounded-full flex-shrink-0" style="background-color: ${cat.colorHex}"></span>
+          <span class="truncate">${cat.label}</span>
+        `;
+
+        btn.addEventListener('click', () => {
+          selectCategory(cat);
+          updatePreview();
+        });
+
+        container.appendChild(btn);
+      });
+    }
+
+    // Render Color Legend Grid
+    function initLegend() {
+      const legendGrid = document.getElementById('legendGrid');
+      legendGrid.innerHTML = '';
+      CATEGORIES.forEach(cat => {
+        const item = document.createElement('div');
+        item.className = 'flex items-center gap-2 bg-slate-900/60 border border-slate-800/80 p-2 rounded-lg text-slate-300';
+        item.innerHTML = `
+          <span class="w-3 h-3 rounded-full" style="background-color: ${cat.colorHex}"></span>
+          <div class="truncate">
+            <div class="font-medium leading-none text-[11px]">${cat.label}</div>
+            <div class="text-[10px] text-slate-500 mt-0.5">${cat.colorName}</div>
+          </div>
+        `;
+        legendGrid.appendChild(item);
+      });
+    }
+
+    // Select active category
+    function selectCategory(category) {
+      currentCategory = category;
+      document.querySelectorAll('.category-pill').forEach(btn => {
+        if (btn.dataset.catId === category.id) {
+          btn.className = 'category-pill flex items-center gap-2 p-2 rounded-xl border text-xs font-medium text-left transition bg-slate-800 border-slate-500 text-white shadow';
+        } else {
+          btn.className = 'category-pill flex items-center gap-2 p-2 rounded-xl border text-xs font-medium text-left transition bg-slate-900/60 border-slate-800 text-slate-400 hover:bg-slate-800/80 hover:text-slate-200';
+        }
+      });
+      document.getElementById('detectedCatBadge').textContent = `Selected: ${category.label}`;
+    }
+
+    // Set Default Dates and Times
+    function setDefaultDates() {
+      const today = new Date();
+      document.getElementById('eventDate').value = formatDateISO(today);
+      document.getElementById('startTime').value = '18:15';
+      document.getElementById('endTime').value = '21:00';
+    }
+
+    // Format date as YYYY-MM-DD
+    function formatDateISO(date) {
+      const yyyy = date.getFullYear();
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      const dd = String(date.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    // Setup Event Listeners
+    function setupEventListeners() {
+      const nlInput = document.getElementById('nlInput');
+      nlInput.addEventListener('input', (e) => {
+        parseInput(e.target.value);
+      });
+
+      // Sync form fields to live preview
+      ['eventTitle', 'eventDate', 'startTime', 'endTime', 'reminderTime', 'reminderMethod', 'eventDescription'].forEach(id => {
+        document.getElementById(id).addEventListener('input', updatePreview);
+      });
+
+      // Main Buttons
+      document.getElementById('gcalDirectBtn').addEventListener('click', openGoogleCalendarDirect);
+      document.getElementById('icsDownloadBtn').addEventListener('click', downloadICSFile);
+      document.getElementById('directApiInsertBtn').addEventListener('click', handleDirectApiInsert);
+
+      // Modal handlers
+      document.getElementById('openApiModalBtn').addEventListener('click', () => {
+        document.getElementById('apiModal').classList.remove('hidden');
+      });
+      document.getElementById('closeApiModalBtn').addEventListener('click', () => {
+        document.getElementById('apiModal').classList.add('hidden');
+      });
+      document.getElementById('saveClientIdBtn').addEventListener('click', () => {
+        const val = document.getElementById('googleClientIdInput').value.trim();
+        localStorage.setItem('quick_sched_client_id', val);
+        googleClientId = val;
+        showToast('Google OAuth Client ID Saved!', 'success');
+        document.getElementById('apiModal').classList.add('hidden');
+      });
+
+      document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+        historyList = [];
+        localStorage.removeItem('quick_sched_history');
+        renderHistory();
+        showToast('History log cleared', 'info');
+      });
+    }
+
+    // Natural Language Parser Logic
+    function parseInput(text) {
+      if (!text.trim()) return;
+
+      let extractedTitle = text;
+      let matchedCategory = null;
+
+      // 1. Detect Category by keyword matching
+      const lowerText = text.toLowerCase();
+      
+      // Check specific multi-word/priority matches first
+      if (lowerText.includes('arvp') || lowerText.includes('pool test')) {
+        matchedCategory = CATEGORIES.find(c => c.id === 'ARVP project meeting');
+      } else if (lowerText.includes('midterm') || lowerText.includes('exam prep')) {
+        matchedCategory = CATEGORIES.find(c => c.id === 'Midterm Prep');
+      } else if (lowerText.includes('catch up') || lowerText.includes('catchup')) {
+        matchedCategory = CATEGORIES.find(c => c.id === 'Catch up on project');
+      } else if (lowerText.includes('apply') || lowerText.includes('job') || lowerText.includes('resume')) {
+        matchedCategory = CATEGORIES.find(c => c.id === 'Apply to jobs');
+      } else if (lowerText.includes('study') || lowerText.includes('studying')) {
+        matchedCategory = CATEGORIES.find(c => c.id === 'Studying');
+      } else if (lowerText.includes('work on') || lowerText.includes('project') || lowerText.includes('coding')) {
+        matchedCategory = CATEGORIES.find(c => c.id === 'Work on project');
+      }
+
+      if (matchedCategory) {
+        selectCategory(matchedCategory);
+      }
+
+      // 2. Parse Date
+      // Look for explicit month/day like "Oct 17", "October 17", "Oct. 17", "10/17"
+      const monthNames = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+      const dateRegex = /(?:(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+(\d{1,2}))|(?:(\d{1,2})\/(\d{1,2}))/i;
+      const dateMatch = text.match(dateRegex);
+
+      let parsedDate = new Date();
+
+      if (dateMatch) {
+        if (dateMatch[1] && dateMatch[2]) {
+          const monthIdx = monthNames.indexOf(dateMatch[1].toLowerCase().substring(0, 3));
+          const day = parseInt(dateMatch[2], 10);
+          parsedDate.setMonth(monthIdx);
+          parsedDate.setDate(day);
+        } else if (dateMatch[3] && dateMatch[4]) {
+          const monthIdx = parseInt(dateMatch[3], 10) - 1;
+          const day = parseInt(dateMatch[4], 10);
+          parsedDate.setMonth(monthIdx);
+          parsedDate.setDate(day);
+        }
+        // Check if date has already passed this year, if so bump to next year
+        if (parsedDate < new Date(new Date().setDate(new Date().getDate() - 1))) {
+          // Keep current year or handle wrap-around if needed
+        }
+        document.getElementById('eventDate').value = formatDateISO(parsedDate);
+        extractedTitle = extractedTitle.replace(dateMatch[0], '');
+      } else if (lowerText.includes('tomorrow')) {
+        parsedDate.setDate(parsedDate.getDate() + 1);
+        document.getElementById('eventDate').value = formatDateISO(parsedDate);
+        extractedTitle = extractedTitle.replace(/tomorrow/i, '');
+      }
+
+      // 3. Parse Time Ranges (e.g. "6:15 pm to 9:00 pm", "2:00pm - 4:00pm", "10am-12pm")
+      const timeRangeRegex = /(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\s*(?:to|-|until)\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)/i;
+      const timeMatch = text.match(timeRangeRegex);
+
+      if (timeMatch) {
+        let startHour = parseInt(timeMatch[1], 10);
+        let startMin = timeMatch[2] ? parseInt(timeMatch[2], 10) : 0;
+        let startMeridiem = timeMatch[3] ? timeMatch[3].toLowerCase() : null;
+
+        let endHour = parseInt(timeMatch[4], 10);
+        let endMin = timeMatch[5] ? parseInt(timeMatch[5], 10) : 0;
+        let endMeridiem = timeMatch[6] ? timeMatch[6].toLowerCase() : null;
+
+        // If start meridiem was omitted, assume same as end meridiem unless start > end
+        if (!startMeridiem && endMeridiem) {
+          startMeridiem = endMeridiem;
+          if (startHour > endHour && startHour !== 12) {
+            startMeridiem = endMeridiem === 'pm' ? 'am' : 'pm';
+          }
+        }
+
+        // Convert to 24-hour format
+        if (startMeridiem === 'pm' && startHour < 12) startHour += 12;
+        if (startMeridiem === 'am' && startHour === 12) startHour = 0;
+
+        if (endMeridiem === 'pm' && endHour < 12) endHour += 12;
+        if (endMeridiem === 'am' && endHour === 12) endHour = 0;
+
+        const formattedStart = `${String(startHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}`;
+        const formattedEnd = `${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}`;
+
+        document.getElementById('startTime').value = formattedStart;
+        document.getElementById('endTime').value = formattedEnd;
+
+        extractedTitle = extractedTitle.replace(timeMatch[0], '');
+      }
+
+      // Clean up extracted title
+      extractedTitle = extractedTitle.replace(/[\s\-,.]+/g, ' ').trim();
+      if (extractedTitle) {
+        document.getElementById('eventTitle').value = extractedTitle;
+      }
+
+      updatePreview();
+    }
+
+    // Apply Quick Preset
+    function applyPreset(presetText) {
+      const textarea = document.getElementById('nlInput');
+      textarea.value = presetText;
+      parseInput(presetText);
+      showToast('Preset loaded and parsed!', 'info');
+    }
+
+    // Update Live Preview Block
+    function updatePreview() {
+      const title = document.getElementById('eventTitle').value || 'Untitled Event';
+      const dateVal = document.getElementById('eventDate').value;
+      const startTimeVal = document.getElementById('startTime').value;
+      const endTimeVal = document.getElementById('endTime').value;
+      const reminderTime = document.getElementById('reminderTime').value;
+
+      // Update Card Styling according to Category
+      const previewColorBar = document.getElementById('previewColorBar');
+      const previewCategoryBadge = document.getElementById('previewCategoryBadge');
+      
+      previewColorBar.style.backgroundColor = currentCategory.colorHex;
+      previewCategoryBadge.style.backgroundColor = currentCategory.colorHex;
+      previewCategoryBadge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-white"></span> ${currentCategory.label}`;
+
+      document.getElementById('previewTitle').textContent = title;
+      document.getElementById('previewColorName').textContent = currentCategory.colorName;
+
+      // Format Date for preview
+      if (dateVal) {
+        const [y, m, d] = dateVal.split('-');
+        const dateObj = new Date(y, m - 1, d);
+        document.getElementById('previewDate').textContent = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      }
+
+      // Format Times
+      if (startTimeVal && endTimeVal) {
+        const startFormatted = formatTime12H(startTimeVal);
+        const endFormatted = formatTime12H(endTimeVal);
+        document.getElementById('previewTimeRange').textContent = `${startFormatted} – ${endFormatted}`;
+
+        // Duration Calculation
+        const [sH, sM] = startTimeVal.split(':').map(Number);
+        const [eH, eM] = endTimeVal.split(':').map(Number);
+        let diffMins = (eH * 60 + eM) - (sH * 60 + sM);
+        if (diffMins < 0) diffMins += 24 * 60; // Overnight handle
+
+        const durationHrs = Math.floor(diffMins / 60);
+        const remainingMins = diffMins % 60;
+        let durStr = '';
+        if (durationHrs > 0) durStr += `${durationHrs}h `;
+        if (remainingMins > 0 || durationHrs === 0) durStr += `${remainingMins}m`;
+
+        document.getElementById('durationTag').textContent = durStr;
+      }
+
+      // Reminder text
+      let remLabel = `${reminderTime}m before`;
+      if (reminderTime == '60') remLabel = '1 hr before';
+      if (reminderTime == '1440') remLabel = '1 day before';
+      document.getElementById('previewReminderText').textContent = `Email & Notification ${remLabel}`;
+    }
+
+    // Helper: Convert 24h string "18:15" to 12h string "6:15 PM"
+    function formatTime12H(time24) {
+      if (!time24) return '';
+      let [h, m] = time24.split(':').map(Number);
+      const meridiem = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      return `${h}:${String(m).padStart(2, '0')} ${meridiem}`;
+    }
+
+    // Get ISO Datetime string formatted for Google Calendar URLs (UTC string: YYYYMMDDTHHmmssZ)
+    function getGCalISOStrings() {
+      const dateVal = document.getElementById('eventDate').value;
+      const startTimeVal = document.getElementById('startTime').value;
+      const endTimeVal = document.getElementById('endTime').value;
+
+      const [y, month, d] = dateVal.split('-').map(Number);
+      const [sH, sM] = startTimeVal.split(':').map(Number);
+      const [eH, eM] = endTimeVal.split(':').map(Number);
+
+      const startDate = new Date(y, month - 1, d, sH, sM);
+      const endDate = new Date(y, month - 1, d, eH, eM);
+
+      // Convert to UTC ISO format required by GCal render TEMPLATE
+      const formatUTC = (date) => {
+        return date.toISOString().replace(/-|:|\.\d\d\d/g, '');
+      };
+
+      return {
+        startISO: formatUTC(startDate),
+        endISO: formatUTC(endDate),
+        startDateObj: startDate,
+        endDateObj: endDate
+      };
+    }
+
+    // Open Google Calendar TEMPLATE URL
+    function openGoogleCalendarDirect() {
+      const title = document.getElementById('eventTitle').value || 'Untitled Event';
+      const notes = document.getElementById('eventDescription').value;
+      const { startISO, endISO } = getGCalISOStrings();
+
+      // Detailed Description with Category tag
+      const fullDescription = `[Category: ${currentCategory.label} - Google Color: ${currentCategory.colorName}]\n\n${notes ? notes + '\n\n' : ''}Scheduled via QuickSched Google Calendar Tool.`;
+
+      const gcalUrl = new URL('https://calendar.google.com/calendar/render');
+      gcalUrl.searchParams.append('action', 'TEMPLATE');
+      gcalUrl.searchParams.append('text', title);
+      gcalUrl.searchParams.append('dates', `${startISO}/${endISO}`);
+      gcalUrl.searchParams.append('details', fullDescription);
+
+      window.open(gcalUrl.toString(), '_blank');
+
+      saveToHistory(title, startISO);
+      showToast('Opening Google Calendar...', 'success');
+    }
+
+    // Download .ICS File with embedded VALARM Email Reminders
+    function downloadICSFile() {
+      const title = document.getElementById('eventTitle').value || 'Untitled Event';
+      const notes = document.getElementById('eventDescription').value;
+      const reminderTime = document.getElementById('reminderTime').value;
+      const { startDateObj, endDateObj } = getGCalISOStrings();
+
+      const formatICSDate = (date) => {
+        return date.toISOString().replace(/-|:|\.\d\d\d/g, '');
+      };
+
+      const startICS = formatICSDate(startDateObj);
+      const endICS = formatICSDate(endDateObj);
+      const nowICS = formatICSDate(new Date());
+
+      const icsContent = 
+`BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//QuickSched Calendar Creator//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:quicksched-${Date.now()}@domain.com
+DTSTAMP:${nowICS}
+DTSTART:${startICS}
+DTEND:${endICS}
+SUMMARY:${title}
+DESCRIPTION:[Category: ${currentCategory.label}] ${notes || ''}
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:EMAIL
+DESCRIPTION:Reminder: ${title}
+TRIGGER:-PT${reminderTime}M
+SUMMARY:Event Reminder: ${title}
+END:VALARM
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Reminder: ${title}
+TRIGGER:-PT${reminderTime}M
+END:VALARM
+END:VEVENT
+END:VCALENDAR`;
+
+      const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.setAttribute('download', `${title.replace(/\s+/g, '_')}.ics`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      saveToHistory(title, startICS);
+      showToast('.ICS File downloaded!', 'success');
+    }
+
+    // Direct Google Calendar API Insert Flow
+    function handleDirectApiInsert() {
+      if (!googleClientId) {
+        document.getElementById('apiModal').classList.remove('hidden');
+        showToast('Please enter your Google OAuth Client ID first', 'info');
+        return;
+      }
+
+      showToast('Initiating Google OAuth direct sync...', 'info');
+
+      // Initialize Token Client via Google Identity Services
+      const client = google.accounts.oauth2.initTokenClient({
+        client_id: googleClientId,
+        scope: 'https://www.googleapis.com/auth/calendar.events',
+        callback: async (tokenResponse) => {
+          if (tokenResponse && tokenResponse.access_token) {
+            await insertEventViaApi(tokenResponse.access_token);
+          } else {
+            showToast('Google Authorization failed', 'error');
+          }
+        },
+      });
+
+      client.requestAccessToken();
+    }
+
+    // Execute API Insert Call
+    async function insertEventViaApi(accessToken) {
+      const title = document.getElementById('eventTitle').value || 'Untitled Event';
+      const notes = document.getElementById('eventDescription').value;
+      const reminderMins = parseInt(document.getElementById('reminderTime').value, 10);
+      const { startDateObj, endDateObj } = getGCalISOStrings();
+
+      const eventPayload = {
+        summary: title,
+        description: `[Category: ${currentCategory.label}]\n${notes || ''}`,
+        colorId: currentCategory.gcalColorId, // Native Google Calendar Color ID!
+        start: {
+          dateTime: startDateObj.toISOString(),
+        },
+        end: {
+          dateTime: endDateObj.toISOString(),
+        },
+        reminders: {
+          useDefault: false,
+          overrides: [
+            { method: 'email', minutes: reminderMins },
+            { method: 'popup', minutes: reminderMins }
+          ]
+        }
+      };
+
+      try {
+        const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(eventPayload)
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          saveToHistory(title, startDateObj.toISOString());
+          showToast('Successfully added event with Native Color to Google Calendar!', 'success');
+        } else {
+          const err = await response.json();
+          showToast(`API Error: ${err.error?.message || 'Failed to create event'}`, 'error');
+        }
+      } catch (e) {
+        showToast('Failed to connect to Google API', 'error');
+      }
+    }
+
+    // Save Event to Local History
+    function saveToHistory(title, dateStr) {
+      const newItem = {
+        id: Date.now(),
+        title,
+        category: currentCategory.label,
+        colorHex: currentCategory.colorHex,
+        dateFormatted: document.getElementById('eventDate').value,
+        timeFormatted: `${formatTime12H(document.getElementById('startTime').value)} - ${formatTime12H(document.getElementById('endTime').value)}`,
+        createdTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+
+      historyList.unshift(newItem);
+      if (historyList.length > 8) historyList.pop(); // Keep last 8
+
+      localStorage.setItem('quick_sched_history', JSON.stringify(historyList));
+      renderHistory();
+    }
+
+    // Render History Log List
+    function renderHistory() {
+      const historyContainer = document.getElementById('historyList');
+      const countBadge = document.getElementById('historyCount');
+      countBadge.textContent = historyList.length;
+
+      if (historyList.length === 0) {
+        historyContainer.innerHTML = `<p class="text-xs text-slate-500 italic py-2 text-center">No recent events created yet.</p>`;
+        return;
+      }
+
+      historyContainer.innerHTML = '';
+      historyList.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between p-2.5 bg-slate-900/80 border border-slate-800 rounded-xl text-xs hover:border-slate-700 transition';
+        row.innerHTML = `
+          <div class="flex items-center gap-2.5 truncate">
+            <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background-color: ${item.colorHex}"></span>
+            <div class="truncate">
+              <div class="font-medium text-slate-200 truncate">${item.title}</div>
+              <div class="text-[10px] text-slate-400">${item.dateFormatted} • ${item.timeFormatted}</div>
+            </div>
+          </div>
+          <span class="text-[10px] font-mono text-slate-500 flex-shrink-0 pl-2">${item.createdTime}</span>
+        `;
+        historyContainer.appendChild(row);
+      });
+    }
+
+    // Toast Notification System
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+
+      let iconName = 'info';
+      let borderClass = 'border-blue-500/30 text-blue-300';
+      
+      if (type === 'success') {
+        iconName = 'check-circle';
+        borderClass = 'border-emerald-500/30 text-emerald-300';
+      } else if (type === 'error') {
+        iconName = 'alert-triangle';
+        borderClass = 'border-rose-500/30 text-rose-300';
+      }
+
+      toast.className = `glass-panel ${borderClass} px-4 py-3 rounded-xl text-xs font-medium shadow-2xl flex items-center gap-2 transform transition-all duration-300 translate-y-2 opacity-0`;
+      toast.innerHTML = `
+        <i data-lucide="${iconName}" class="w-4 h-4 flex-shrink-0"></i>
+        <span>${message}</span>
+      `;
+
+      container.appendChild(toast);
+      lucide.createIcons();
+
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+  </script>
+</body>
+</html>
