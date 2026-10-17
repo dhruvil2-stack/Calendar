@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Quick Cal - Engineering Schedule Scheduler</title>
+  <title>Quick Cal</title>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     :root {
-      --bg: #0b0f19;
-      --card-bg: #151c2c;
-      --card-border: #232e48;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
       --accent: #3b82f6;
       --accent-hover: #2563eb;
-      --text-main: #f1f5f9;
-      --text-sub: #94a3b8;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
       --danger: #ef4444;
       --success: #10b981;
       --radius: 12px;
@@ -22,128 +22,112 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background-color: var(--bg);
-      color: var(--text-main);
+      color: var(--text);
       min-height: 100vh;
       display: flex;
       justify-content: center;
       padding: 1rem;
     }
 
-    .app-container {
+    .container {
       width: 100%;
-      max-width: 650px;
+      max-width: 500px;
       display: flex;
       flex-direction: column;
-      gap: 1.25rem;
+      gap: 1rem;
     }
 
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.5rem 0;
+      padding: 0.25rem 0;
     }
 
-    .brand {
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      font-size: 1.4rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
     }
-
-    .btn-icon {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      color: var(--text-main);
-      padding: 0.5rem 0.85rem;
-      border-radius: var(--radius);
-      cursor: pointer;
-      font-weight: 500;
-      font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      transition: background 0.2s;
-    }
-
-    .btn-icon:hover { background: var(--card-border); }
 
     .card {
       background: var(--card-bg);
-      border: 1px solid var(--card-border);
+      border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 1.25rem;
       display: flex;
       flex-direction: column;
-      gap: 1rem;
-      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+      gap: 0.85rem;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
     }
 
     label {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: 600;
-      color: var(--text-sub);
+      color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
 
-    .preset-container {
+    .presets-pills {
       display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
+      gap: 0.4rem;
+      overflow-x: auto;
+      padding-bottom: 0.25rem;
+      scrollbar-width: none;
     }
+    .presets-pills::-webkit-scrollbar { display: none; }
 
-    .btn-preset {
-      background: rgba(59, 130, 246, 0.15);
-      border: 1px solid rgba(59, 130, 246, 0.4);
+    .pill {
+      background: rgba(59, 130, 246, 0.12);
+      border: 1px solid rgba(59, 130, 246, 0.3);
       color: #60a5fa;
-      padding: 0.5rem 0.75rem;
-      border-radius: 8px;
-      font-size: 0.82rem;
+      padding: 0.35rem 0.65rem;
+      border-radius: 9999px;
+      font-size: 0.78rem;
       font-weight: 600;
+      white-space: nowrap;
       cursor: pointer;
       transition: all 0.2s;
     }
-
-    .btn-preset:hover {
-      background: rgba(59, 130, 246, 0.3);
+    .pill:hover {
+      background: rgba(59, 130, 246, 0.25);
       color: #fff;
     }
 
     textarea, input, select {
       width: 100%;
-      background-color: rgba(11, 15, 25, 0.7);
-      border: 1px solid var(--card-border);
-      color: var(--text-main);
-      padding: 0.85rem;
-      border-radius: var(--radius);
-      font-size: 0.95rem;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.75rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
       font-family: inherit;
       outline: none;
       transition: border-color 0.2s;
     }
-
     textarea:focus, input:focus, select:focus {
       border-color: var(--accent);
     }
-
     textarea {
       resize: vertical;
-      min-height: 140px;
+      min-height: 90px;
     }
 
-    .btn-primary {
+    button {
+      width: 100%;
       background: var(--accent);
-      color: #fff;
+      color: white;
       border: none;
-      padding: 0.9rem;
-      border-radius: var(--radius);
-      font-size: 1rem;
+      padding: 0.85rem;
+      border-radius: 8px;
       font-weight: 600;
+      font-size: 0.95rem;
       cursor: pointer;
       transition: background 0.2s;
       display: flex;
@@ -151,179 +135,169 @@
       align-items: center;
       gap: 0.5rem;
     }
+    button:hover { background: var(--accent-hover); }
 
-    .btn-primary:hover { background: var(--accent-hover); }
+    button.secondary {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      width: auto;
+      padding: 0.4rem 0.8rem;
+      font-size: 0.85rem;
+    }
+    button.secondary:hover {
+      background: var(--border);
+      color: var(--text);
+    }
 
     .btn-danger {
       background: rgba(239, 68, 68, 0.15);
       color: var(--danger);
       border: 1px solid rgba(239, 68, 68, 0.3);
-      padding: 0.4rem 0.75rem;
-      border-radius: 8px;
-      font-size: 0.8rem;
+      padding: 0.25rem 0.55rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
       cursor: pointer;
+      width: auto;
     }
-
     .btn-danger:hover { background: rgba(239, 68, 68, 0.3); }
 
-    .preview-card {
-      background: rgba(11, 15, 25, 0.5);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius);
-      padding: 0.9rem;
+    /* PREVIEW ITEM CARDS */
+    .preview-item {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem;
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
+      gap: 0.5rem;
     }
 
-    .preview-info { display: flex; flex-direction: column; gap: 0.25rem; }
-    .preview-title { font-weight: 700; font-size: 0.98rem; display: flex; align-items: center; gap: 0.5rem; }
-    .preview-meta { font-size: 0.83rem; color: var(--text-sub); line-height: 1.4; }
+    .preview-body { display: flex; flex-direction: column; gap: 0.25rem; }
+    .preview-title-row { font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+    .preview-meta-row { font-size: 0.8rem; color: var(--text-muted); line-height: 1.3; }
 
-    .badge {
+    .tag {
       display: inline-block;
-      padding: 0.2rem 0.6rem;
+      padding: 0.15rem 0.5rem;
       border-radius: 9999px;
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       font-weight: 700;
       text-transform: uppercase;
-    }
-
-    .cat-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      max-height: 220px;
-      overflow-y: auto;
     }
 
     .cat-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.75rem;
-      background: rgba(11, 15, 25, 0.4);
-      border: 1px solid var(--card-border);
+      padding: 0.6rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .cat-item:last-child { border-bottom: none; }
+
+    .status-box {
+      padding: 0.65rem;
       border-radius: 8px;
-    }
-
-    .cat-info { display: flex; flex-direction: column; gap: 0.2rem; }
-    .cat-title { font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem; }
-    .cat-keywords { font-size: 0.8rem; color: var(--text-sub); }
-
-    .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      display: inline-block;
-    }
-
-    .status-msg {
-      padding: 0.75rem;
-      border-radius: var(--radius);
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.4rem;
     }
     .status-success { background: rgba(16, 185, 129, 0.15); border: 1px solid var(--success); color: var(--success); }
     .status-info { background: rgba(59, 130, 246, 0.15); border: 1px solid var(--accent); color: var(--accent); }
 
     .hidden { display: none !important; }
 
-    /* Native Google Calendar Color Swatches */
-    .color-1 { background-color: #a4bdfc; color: #111; } /* Lavender */
-    .color-2 { background-color: #7ae7bf; color: #111; } /* Sage */
-    .color-3 { background-color: #dbadff; color: #111; } /* Grape (Purple) */
-    .color-4 { background-color: #ff887c; color: #111; } /* Flamingo (Coral) */
-    .color-5 { background-color: #fbd75b; color: #111; } /* Banana (Yellow) */
-    .color-6 { background-color: #ffb878; color: #111; } /* Tangerine (Orange) */
-    .color-7 { background-color: #46d6db; color: #111; } /* Peacock (Cyan) */
-    .color-8 { background-color: #e1e1e1; color: #111; } /* Graphite */
-    .color-9 { background-color: #5484ed; color: #fff; } /* Blueberry (Blue) */
-    .color-10 { background-color: #51b749; color: #fff; } /* Basil (Green) */
-    .color-11 { background-color: #dc2127; color: #fff; } /* Tomato (Red) */
+    /* Color Swatches */
+    .color-1 { background-color: #a4bdfc; color: #111; }
+    .color-2 { background-color: #7ae7bf; color: #111; }
+    .color-3 { background-color: #dbadff; color: #111; }
+    .color-4 { background-color: #ff887c; color: #111; }
+    .color-5 { background-color: #fbd75b; color: #111; }
+    .color-6 { background-color: #ffb878; color: #111; }
+    .color-7 { background-color: #46d6db; color: #111; }
+    .color-8 { background-color: #e1e1e1; color: #111; }
+    .color-9 { background-color: #5484ed; color: #fff; }
+    .color-10 { background-color: #51b749; color: #fff; }
+    .color-11 { background-color: #dc2127; color: #fff; }
   </style>
 </head>
 <body>
 
-  <div class="app-container">
+  <div class="container">
     <header>
-      <div class="brand">⚡ Quick Cal</div>
-      <button class="btn-icon" onclick="toggleSettings()">⚙️ Settings</button>
+      <h1>⚡ Quick Cal</h1>
+      <button class="secondary" onclick="toggleSettings()">⚙️ Settings</button>
     </header>
 
-    <!-- MAIN PARSER VIEW -->
-    <main id="mainView" class="card">
-      <div>
-        <label style="margin-bottom: 0.5rem; display: block;">Quick Presets</label>
-        <div class="preset-container">
-          <button class="btn-preset" onclick="loadPreset('classes')">📚 Load Fall Classes & Seminars</button>
-          <button class="btn-preset" onclick="loadPreset('labs')">🧪 Load All Lab Sessions</button>
-          <button class="btn-preset" onclick="loadPreset('all')">⚡ Load Entire Fall Schedule</button>
-          <button class="btn-preset" onclick="loadPreset('arvp')">🤖 ARVP Pool Test</button>
-          <button class="btn-preset" onclick="loadPreset('study')">📖 Study Block</button>
+    <!-- MAIN APP VIEW -->
+    <main id="main-view">
+      <div class="card">
+        <div class="presets-pills">
+          <span class="pill" onclick="loadPreset('classes')">📚 Classes</span>
+          <span class="pill" onclick="loadPreset('labs')">🧪 Labs</span>
+          <span class="pill" onclick="loadPreset('all')">⚡ All Schedule</span>
+          <span class="pill" onclick="loadPreset('arvp')">🤖 ARVP</span>
+          <span class="pill" onclick="loadPreset('study')">📖 Study</span>
         </div>
+
+        <div>
+          <label for="promptInput">Enter Prompt or Schedule:</label>
+          <textarea id="promptInput" rows="3" placeholder="e.g. Catch up on studying Oct 18 from 2pm to 5pm in Cameron Library"></textarea>
+        </div>
+
+        <button onclick="scheduleAllEvents()">Sync to Google Calendar</button>
+
+        <div id="statusBox" class="hidden"></div>
       </div>
 
-      <div>
-        <label for="promptInput">Event Prompt / Schedule Text</label>
-        <textarea id="promptInput" placeholder="Click a preset above or enter prompts..."></textarea>
-      </div>
-
-      <button class="btn-primary" onclick="scheduleAllEvents()">
-        <span>⚡ Sync Event(s) Directly to Google Calendar</span>
-      </button>
-
-      <div id="statusContainer" class="hidden"></div>
-
-      <!-- PARSED EVENTS LIST -->
-      <div id="previewSection" class="hidden">
-        <label style="margin-bottom: 0.5rem; display: block;">Parsed Events Queue</label>
-        <div id="previewList" style="display: flex; flex-direction: column; gap: 0.6rem;"></div>
+      <!-- PARSED PREVIEW -->
+      <div id="previewCard" class="card hidden" style="margin-top: 1rem;">
+        <label>Parsed Event Queue</label>
+        <div id="previewList" style="display: flex; flex-direction: column; gap: 0.5rem;"></div>
       </div>
     </main>
 
-    <!-- SETTINGS & CATEGORIES -->
-    <section id="settingsView" class="card hidden">
-      <h2>App Settings</h2>
-      
-      <div>
-        <label for="clientId">Google OAuth Client ID</label>
-        <input type="text" id="clientId" placeholder="Paste .apps.googleusercontent.com ID here">
-        <button class="btn-primary" style="margin-top: 0.5rem;" onclick="saveClientId()">Save Client ID</button>
+    <!-- SETTINGS VIEW -->
+    <section id="settings-view" class="hidden">
+      <div class="card">
+        <h3>Google API Credentials</h3>
+        <label style="font-size:0.75rem;">OAuth Client ID:</label>
+        <input type="text" id="clientIdInput" placeholder="Paste Client ID here">
+        <button onclick="saveClientId()">Save Client ID</button>
       </div>
 
-      <hr style="border: 0; border-top: 1px solid var(--card-border);">
+      <div class="card" style="margin-top: 1rem;">
+        <h3>Category Manager</h3>
+        <div id="categoryList"></div>
 
-      <h3>Category Manager</h3>
-      <div class="cat-list" id="catList"></div>
+        <hr style="border:0; border-top: 1px solid var(--border); margin: 0.5rem 0;">
 
-      <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.5rem;">
-        <label>Add Custom Category</label>
-        <input type="text" id="newCatName" placeholder="Category Name (e.g. Capstone)">
-        <input type="text" id="newCatKw" placeholder="Keywords comma separated (e.g. capstone, design)">
+        <label style="font-size:0.75rem;">Add Category</label>
+        <input type="text" id="newCatName" placeholder="Category Name (e.g. Studying)">
+        <input type="text" id="newCatKeywords" placeholder="Keywords (e.g. study, homework, exam)">
         
-        <label>Google Calendar Event Color</label>
+        <label style="font-size:0.75rem;">Google Calendar Color:</label>
         <select id="newCatColor">
-          <option value="9">Blueberry / Blue (Lectures)</option>
-          <option value="11">Tomato / Red (Labs & Exams)</option>
-          <option value="3">Grape / Purple (Studying)</option>
-          <option value="7">Peacock / Cyan (Clubs / ARVP)</option>
-          <option value="5">Banana / Yellow (Personal Projects)</option>
-          <option value="6">Tangerine / Orange (Work / Meetings)</option>
-          <option value="10">Basil / Green (Gym & Health)</option>
+          <option value="9">Blueberry (Blue - Classes)</option>
+          <option value="11">Tomato (Red - Labs & Exams)</option>
+          <option value="3">Grape (Purple - Studying)</option>
+          <option value="7">Peacock (Cyan - Clubs/ARVP)</option>
+          <option value="5">Banana (Yellow - Projects)</option>
+          <option value="6">Tangerine (Orange - Work)</option>
+          <option value="10">Basil (Green - Gym/Personal)</option>
         </select>
 
-        <button class="btn-primary" onclick="addNewCategory()">+ Add Category</button>
+        <button onclick="addCategory()">Add Category</button>
       </div>
 
-      <button class="btn-icon" style="justify-content: center;" onclick="toggleSettings()">← Back to App</button>
+      <button class="secondary" style="margin-top: 1rem; width:100%;" onclick="toggleSettings()">← Back to App</button>
     </section>
   </div>
 
   <script>
-    // --- FALL 2026 FULL PRESETS ---
+    // --- PRESETS ---
     const HARDCODED_CLASSES = `ECE 370 Lecture A2 at NRE 2-001 every Tue/Thu 8:00am to 9:20am
 MATH 309 Lecture A1 at ETLC E1-013 every MWF 9:00am to 9:50am
 ECE 312 Lecture A1 at ETLC E1-013 every Tue/Thu 9:30am to 10:50am
@@ -357,7 +331,6 @@ ECE 302 Lab 5 D42 at ETLC E4-001 Dec 3 2:00pm to 4:50pm`;
     const PRESET_ARVP = "ARVP Pool Test at PAC Pool Oct 20 6:15pm to 9:00pm";
     const PRESET_STUDY = "Catch up on studying ECE 302 Oct 18 2:00pm to 5:00pm in Cameron Library";
 
-    // --- CATEGORIES ---
     const DEFAULT_CATEGORIES = [
       { name: "Lectures / Classes", colorId: "9", keywords: ["lecture", "class", "ece", "cmput", "encmp", "math", "phys", "chem", "stat", "engg"] },
       { name: "Labs & Seminars", colorId: "11", keywords: ["lab", "seminar", "demo", "checkout", "tutorial"] },
@@ -372,9 +345,8 @@ ECE 302 Lab 5 D42 at ETLC E4-001 Dec 3 2:00pm to 4:50pm`;
     let cachedAccessToken = null;
     let parsedEventsStore = [];
 
-    document.getElementById("clientId").value = clientId;
+    document.getElementById("clientIdInput").value = clientId;
 
-    // Auto-update preview as user types or picks presets
     document.getElementById("promptInput").addEventListener("input", parseAndPreview);
 
     function loadPreset(type) {
@@ -388,60 +360,57 @@ ECE 302 Lab 5 D42 at ETLC E4-001 Dec 3 2:00pm to 4:50pm`;
     }
 
     function toggleSettings() {
-      document.getElementById("mainView").classList.toggle("hidden");
-      document.getElementById("settingsView").classList.toggle("hidden");
+      document.getElementById("main-view").classList.toggle("hidden");
+      document.getElementById("settings-view").classList.toggle("hidden");
       renderCategories();
     }
 
     function saveClientId() {
-      clientId = document.getElementById("clientId").value.trim();
+      clientId = document.getElementById("clientIdInput").value.trim();
       localStorage.setItem("quickcal_client_id", clientId);
       alert("Client ID saved!");
     }
 
     function renderCategories() {
-      const container = document.getElementById("catList");
+      const container = document.getElementById("categoryList");
       container.innerHTML = "";
-
-      categories.forEach((cat, idx) => {
-        const item = document.createElement("div");
-        item.className = "cat-item";
-        item.innerHTML = `
-          <div class="cat-info">
-            <div class="cat-title">
-              <span class="dot color-${cat.colorId}"></span> ${cat.name}
-            </div>
-            <div class="cat-keywords">${cat.keywords.join(", ")}</div>
+      categories.forEach((cat, index) => {
+        const div = document.createElement("div");
+        div.className = "cat-item";
+        div.innerHTML = `
+          <div>
+            <strong><span class="tag color-${cat.colorId}">${cat.name}</span></strong>
+            <br><small style="color:var(--text-muted);">${cat.keywords.join(", ")}</small>
           </div>
-          <button class="btn-danger" onclick="deleteCategory(${idx})">Delete</button>
+          <button class="btn-danger" onclick="deleteCategory(${index})">Delete</button>
         `;
-        container.appendChild(item);
+        container.appendChild(div);
       });
     }
 
-    function addNewCategory() {
+    function addCategory() {
       const name = document.getElementById("newCatName").value.trim();
-      const kwRaw = document.getElementById("newCatKw").value.trim();
+      const keywordsRaw = document.getElementById("newCatKeywords").value.trim();
       const colorId = document.getElementById("newCatColor").value;
 
-      if (!name || !kwRaw) return alert("Enter both name and keywords.");
+      if (!name || !keywordsRaw) return alert("Please enter name and keywords.");
 
-      const keywords = kwRaw.split(",").map(k => k.trim().toLowerCase()).filter(k => k);
+      const keywords = keywordsRaw.split(",").map(k => k.trim().toLowerCase()).filter(k => k);
       categories.push({ name, colorId, keywords });
       localStorage.setItem("quickcal_categories", JSON.stringify(categories));
 
       document.getElementById("newCatName").value = "";
-      document.getElementById("newCatKw").value = "";
+      document.getElementById("newCatKeywords").value = "";
       renderCategories();
     }
 
-    function deleteCategory(idx) {
-      categories.splice(idx, 1);
+    function deleteCategory(index) {
+      categories.splice(index, 1);
       localStorage.setItem("quickcal_categories", JSON.stringify(categories));
       renderCategories();
     }
 
-    // --- ROBUST RECURRENCE PARSER ---
+    // --- RECURRENCE & LOCATION PARSER ---
     function parseRecurrence(text) {
       const untilClause = ";UNTIL=20261208T235959Z";
 
@@ -465,7 +434,7 @@ ECE 302 Lab 5 D42 at ETLC E4-001 Dec 3 2:00pm to 4:50pm`;
       return locMatch ? locMatch[1].trim() : "";
     }
 
-    // --- ACCURATE SINGLE LINE PARSER ---
+    // --- LINE PARSER ---
     function parseSingleLine(line) {
       const lower = line.toLowerCase();
       
@@ -505,7 +474,6 @@ ECE 302 Lab 5 D42 at ETLC E4-001 Dec 3 2:00pm to 4:50pm`;
       const start = new Date(targetDate); start.setHours(startH, startM, 0, 0);
       const end = new Date(targetDate); end.setHours(endH, endM, 0, 0);
 
-      // Clean metadata out of title
       let cleanTitle = line
         .replace(/(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{1,2}/gi, "")
         .replace(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\s*(?:to|-)\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)/gi, "")
@@ -524,7 +492,7 @@ ECE 302 Lab 5 D42 at ETLC E4-001 Dec 3 2:00pm to 4:50pm`;
     function parseAndPreview() {
       const text = document.getElementById("promptInput").value.trim();
       if (!text) {
-        document.getElementById("previewSection").classList.add("hidden");
+        document.getElementById("previewCard").classList.add("hidden");
         parsedEventsStore = [];
         return;
       }
@@ -542,26 +510,24 @@ ECE 302 Lab 5 D42 at ETLC E4-001 Dec 3 2:00pm to 4:50pm`;
     function renderPreviewList(events) {
       const container = document.getElementById("previewList");
       container.innerHTML = "";
-      document.getElementById("previewSection").classList.remove("hidden");
+      document.getElementById("previewCard").classList.remove("hidden");
 
       events.forEach((ev, idx) => {
-        const card = document.createElement("div");
-        card.className = "preview-card";
-        card.innerHTML = `
-          <div class="preview-info">
-            <div class="preview-title">
-              ${ev.title} 
-              <span class="badge color-${ev.colorId}">${ev.category}</span>
+        const item = document.createElement("div");
+        item.className = "preview-item";
+        item.innerHTML = `
+          <div class="preview-body">
+            <div class="preview-title-row">
+              ${ev.title}
+              <span class="tag color-${ev.colorId}">${ev.category}</span>
             </div>
-            <div class="preview-meta">
-              📍 Location: <strong>${ev.location || "Not specified"}</strong><br>
-              ⏰ Time: <strong>${ev.start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} - ${ev.end.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</strong><br>
-              🔄 Recurrence: <strong>${ev.recurrence ? "Recurring (Until Dec 8, 2026)" : "One-time"}</strong>
+            <div class="preview-meta-row">
+              📍 <strong>${ev.location || "No Location"}</strong> | ⏰ <strong>${ev.start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} - ${ev.end.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</strong> | 🔄 <strong>${ev.recurrence ? "Recurring (Until Dec 8)" : "One-time"}</strong>
             </div>
           </div>
-          <button class="btn-danger" onclick="removeEvent(${idx})">Remove</button>
+          <button class="btn-danger" onclick="removeEvent(${idx})">✕</button>
         `;
-        container.appendChild(card);
+        container.appendChild(item);
       });
     }
 
@@ -578,13 +544,13 @@ ECE 302 Lab 5 D42 at ETLC E4-001 Dec 3 2:00pm to 4:50pm`;
 
       getAccessToken((token) => {
         let insertedCount = 0;
-        showStatus(`Scheduling ${parsedEventsStore.length} event(s) directly to Google Calendar...`, "info");
+        showStatus(`Scheduling ${parsedEventsStore.length} event(s) to Google Calendar...`, "info");
 
         parsedEventsStore.forEach((ev) => {
           insertEventToGCal(token, ev, (success) => {
             if (success) insertedCount++;
             if (insertedCount === parsedEventsStore.length) {
-              showStatus(`✅ Successfully added ${insertedCount} event(s) to your Google Calendar!`, "success");
+              showStatus(`✅ Added ${insertedCount} event(s) to Google Calendar!`, "success");
             }
           });
         });
@@ -638,8 +604,8 @@ ECE 302 Lab 5 D42 at ETLC E4-001 Dec 3 2:00pm to 4:50pm`;
     }
 
     function showStatus(msg, type) {
-      const box = document.getElementById("statusContainer");
-      box.className = `status-msg status-${type}`;
+      const box = document.getElementById("statusBox");
+      box.className = `status-box status-${type}`;
       box.innerText = msg;
       box.classList.remove("hidden");
     }
