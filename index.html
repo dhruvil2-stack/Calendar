@@ -3,475 +3,446 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b1019">
-<title>Quick Cal — Engineering Workspace</title>
+<title>Quick Cal — Smart Capture</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
-
 <style>
 :root {
   --bg:#0b1019;
   --panel:#141c2a;
-  --panel2:#101725;
   --input:#0d1320;
-  --border:#273346;
+  --border:#29364a;
   --text:#f1f5fb;
-  --muted:#91a3bc;
+  --muted:#97a9bf;
   --blue:#518bf5;
-  --purple:#7872f5;
   --green:#45c99a;
-  --red:#fa7777;
-  --radius:15px;
+  --red:#ff8181;
 }
-*{box-sizing:border-box}
-body{
-  margin:0;
-  background:var(--bg);
-  color:var(--text);
+* {box-sizing:border-box}
+body {
+  margin:0;background:var(--bg);color:var(--text);
   font:14px/1.5 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
-button,input,textarea,select{font:inherit}
-button{cursor:pointer}
-button:disabled{opacity:.45;cursor:not-allowed}
-button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{
-  outline:2px solid var(--blue);
-  outline-offset:2px;
+button,input,textarea,select {font:inherit}
+button {cursor:pointer}
+button:disabled {opacity:.5;cursor:not-allowed}
+.app {max-width:1390px;margin:auto;padding:24px}
+header {
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;border-bottom:1px solid var(--border);
+  padding-bottom:18px;margin-bottom:20px;
 }
-.app{max-width:1360px;margin:auto;padding:25px}
-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:16px;
-  padding-bottom:20px;
-  border-bottom:1px solid var(--border);
-  margin-bottom:22px;
+.brand {font-size:24px;font-weight:800;letter-spacing:-.7px}
+.brand span {color:var(--blue)}
+button {
+  border:1px solid var(--border);background:#202b3d;color:var(--text);
+  border-radius:9px;padding:10px 13px;font-weight:650;
+  transition:.16s;
 }
-.brand{font-size:24px;font-weight:800;letter-spacing:-.7px}
-.brand span{color:var(--blue)}
-.header-actions{display:flex;gap:9px;align-items:center}
-button{
-  border:1px solid var(--border);
-  background:#202b3d;
-  color:var(--text);
-  border-radius:9px;
-  padding:10px 14px;
-  font-weight:650;
-  transition:background .18s,transform .18s,border-color .18s;
+button:hover {background:#2b3c55;border-color:#466182}
+button.primary {
+  border:0;color:white;
+  background:linear-gradient(110deg,#387ef0,#6965f2);
 }
-button:hover{background:#2a3a51;border-color:#486487}
-button:active{transform:scale(.985)}
-button.primary{
-  border:0;
-  background:linear-gradient(110deg,#387ef0,#6a66f4);
-  box-shadow:0 6px 18px #397cf02c;
-  color:white;
-}
-button.primary:hover{filter:brightness(1.09)}
-button.ghost{background:transparent}
-button.danger{color:#ff9696}
-.grid{
-  display:grid;
-  grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);
+button.ghost {background:transparent}
+.grid {
+  display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);
   gap:20px;
 }
-.column{display:flex;flex-direction:column;gap:20px;min-width:0}
-.card{
-  background:var(--panel);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  padding:21px;
-  box-shadow:0 8px 26px #00000015;
+.column {display:flex;flex-direction:column;gap:20px;min-width:0}
+.card {
+  border:1px solid var(--border);background:var(--panel);
+  border-radius:15px;padding:21px;
 }
-.card-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-  margin-bottom:15px;
+.card-head {
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;margin-bottom:15px;
 }
-.card-title{
-  font-size:13px;
-  font-weight:800;
-  letter-spacing:.55px;
-  text-transform:uppercase;
+.card-title {
+  font-size:13px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
 }
-.small{color:var(--muted);font-size:12px}
-.pill{
-  display:inline-block;
-  padding:5px 10px;
-  border-radius:8px;
-  background:#243248;
-  font-size:11px;
-  font-weight:700;
-  white-space:nowrap;
+.small {font-size:12px;color:var(--muted);margin:5px 0}
+.pill {
+  border-radius:7px;padding:5px 9px;background:#223047;
+  font-size:11px;font-weight:700;
 }
-.success{background:#143e34;color:#67ddb1}
-.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
-.field label{font-size:12px;font-weight:650;color:#a9bad1}
-input,select,textarea{
-  width:100%;
-  background:var(--input);
-  border:1px solid var(--border);
-  border-radius:9px;
-  padding:12px 13px;
-  color:var(--text);
-  min-width:0;
+.success {background:#143b32;color:#72ddb3}
+.field {display:grid;gap:6px;margin-bottom:13px}
+.field label {font-size:12px;color:#aec0d6;font-weight:650}
+.row {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.row3 {display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:12px}
+input,textarea,select {
+  width:100%;min-width:0;background:var(--input);color:var(--text);
+  border:1px solid var(--border);border-radius:9px;padding:12px;
 }
-input[type=color]{
-  padding:3px;
-  width:54px;
-  height:43px;
-  cursor:pointer;
+input:focus,textarea:focus,select:focus {
+  outline:1px solid var(--blue);
 }
-textarea{resize:vertical;min-height:120px}
-input::placeholder,textarea::placeholder{color:#74859d}
-.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.row3{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:12px}
-.preset-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
-.preset-row button{font-size:12px;padding:8px 10px}
-.category-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.category-button{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  text-align:left;
-  font-size:12px;
-  background:var(--input);
-  min-height:48px;
-  overflow-wrap:anywhere;
+input[type=color] {width:55px;height:43px;padding:3px;cursor:pointer}
+textarea {resize:vertical;min-height:114px}
+input::placeholder,textarea::placeholder {color:#8092ab}
+.presets {display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.presets button {font-size:12px;padding:8px 10px}
+.category-grid {
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;
 }
-.category-button.active{
-  border-color:var(--blue);
-  background:#203451;
+.category-button {
+  display:flex;text-align:left;align-items:center;gap:8px;
+  min-height:47px;background:var(--input);overflow-wrap:anywhere;font-size:12px;
 }
-.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.preview{
-  background:linear-gradient(135deg,#172235,#101725);
-  border:1px solid #34425a;
-  border-left:4px solid var(--blue);
-  border-radius:11px;
-  padding:21px;
-  min-height:165px;
+.category-button.active {background:#213651;border-color:var(--blue)}
+.dot {width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.preview {
+  background:linear-gradient(135deg,#172335,#101725);
+  border:1px solid #34425a;border-left:4px solid var(--blue);
+  border-radius:11px;padding:20px;min-height:170px;
 }
-.preview-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.preview-title{font-size:20px;font-weight:750;margin:18px 0 9px;overflow-wrap:anywhere}
-.preview-meta{font-size:13px;color:#a8bdd5;margin-top:7px}
-.preview-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:17px}
-.preview-tags span{
-  background:#222f43;
-  color:#b8c9e0;
-  font-size:11px;
-  padding:6px 9px;
-  border-radius:7px;
+.preview-top {
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
 }
-.main-button{width:100%;margin-top:16px;padding:15px}
-.action-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-.action-row button{font-size:12px}
-.color-map{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.color-item{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  border:1px solid var(--border);
-  border-radius:9px;
-  background:var(--input);
-  padding:11px;
-  min-width:0;
+.preview-title {
+  font-size:20px;font-weight:760;letter-spacing:-.3px;
+  margin:18px 0 8px;overflow-wrap:anywhere;
 }
-.color-item strong{display:block;font-size:12px;overflow-wrap:anywhere}
-.color-item small{display:block;color:var(--muted);font-size:11px}
-.color-item .dot{width:12px;height:12px}
-.recent-item,.batch-item,.manage-item{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  border-bottom:1px solid var(--border);
-  padding:12px 0;
+.preview-meta {font-size:13px;color:#b3c4d8;margin-top:7px}
+.preview-tags {display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}
+.preview-tags span {
+  background:#223047;border-radius:7px;padding:6px 9px;
+  font-size:11px;color:#b8c9e0;
 }
-.recent-item:last-child,.batch-item:last-child,.manage-item:last-child{border-bottom:0}
-.recent-item strong,.batch-item strong{display:block;font-size:13px}
-.recent-item small,.batch-item small{display:block;color:var(--muted);font-size:11px;margin-top:3px}
-.recent-item button,.batch-item button,.manage-item button{font-size:11px;padding:7px 9px}
-.empty{text-align:center;color:var(--muted);padding:22px 0}
-.notice{
-  border:1px solid #365f54;
-  color:#82ddbb;
-  background:#17322d;
-  padding:11px;
-  border-radius:9px;
-  margin-top:13px;
-  font-size:12px;
-  white-space:pre-wrap;
+.wide {width:100%;padding:14px;margin-top:15px}
+.actions {display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}
+.actions button {font-size:12px}
+.color-grid {
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;
 }
-.notice.error{border-color:#794442;background:#351e25;color:#ff9e9e}
-.hidden{display:none!important}
-.settings-page{max-width:850px;margin:auto}
-.settings-section{margin-top:20px}
-.settings-section h2{font-size:17px;margin:0 0 8px}
-.help{color:var(--muted);font-size:12px;margin:0 0 16px}
-.toolbar{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
-.muted-link{background:transparent;border:0;color:#90b8ff;font-size:12px;padding:5px}
-.batch-container{max-height:380px;overflow:auto}
-@media(max-width:950px){
-  .grid{grid-template-columns:1fr}
+.color-entry,.color-add {
+  display:flex;align-items:center;gap:10px;
+  border:1px solid var(--border);border-radius:9px;
+  background:var(--input);padding:10px;min-width:0;text-align:left;
 }
-@media(max-width:620px){
-  .app{padding:14px}
-  header{padding-bottom:14px}
-  .brand{font-size:20px}
-  .card{padding:16px}
-  .category-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .color-map{grid-template-columns:1fr 1fr}
-  .row3{grid-template-columns:1fr 1fr}
-  .row3>.field:first-child{grid-column:span 2}
-  .card-title{font-size:12px}
-  .preview-title{font-size:18px}
-  .header-actions button{font-size:11px;padding:9px}
+.color-entry:hover,.color-add:hover {
+  border-color:#557aa0;background:#1c2a40;
+}
+.color-entry strong {display:block;overflow-wrap:anywhere;font-size:12px}
+.color-entry small {display:block;color:var(--muted);font-size:11px}
+.color-add {
+  justify-content:center;color:#aed3f5;border-style:dashed;font-weight:700;
+}
+.recent-item,.batch-item {
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  border-bottom:1px solid var(--border);padding:12px 0;
+}
+.recent-item:last-child,.batch-item:last-child {border:0}
+.recent-item strong,.batch-item strong {display:block;font-size:13px}
+.recent-item small,.batch-item small {
+  display:block;color:var(--muted);font-size:11px;margin-top:3px;
+}
+.batch-item button {font-size:11px;padding:6px}
+.batch-list {max-height:360px;overflow:auto}
+.empty {text-align:center;color:var(--muted);padding:18px}
+.notice {
+  border:1px solid #356253;color:#8ce1bd;background:#18362e;
+  border-radius:9px;padding:11px;margin-top:12px;
+  font-size:12px;white-space:pre-wrap;
+}
+.notice.error {
+  border-color:#7d4b4b;color:#ffb0a9;background:#392329;
+}
+.hidden {display:none!important}
+.settings-view {max-width:750px;margin:auto}
+.settings-view h2 {font-size:17px}
+.settings-block {margin-top:18px}
+.modal-backdrop {
+  position:fixed;inset:0;z-index:100;background:#02050bca;
+  display:flex;align-items:center;justify-content:center;padding:18px;
+}
+.modal {
+  background:#182234;border:1px solid #40506a;border-radius:17px;
+  padding:23px;width:min(100%,510px);
+  box-shadow:0 25px 100px #0009;max-height:90vh;overflow:auto;
+}
+.modal h2 {font-size:19px;margin:0}
+.modal .help {font-size:12px;color:var(--muted);margin:7px 0 17px}
+.modal-actions {
+  display:flex;gap:9px;justify-content:space-between;
+  flex-wrap:wrap;margin-top:18px;
+}
+.modal-actions .right {display:flex;gap:8px}
+.footer-note {color:var(--muted);font-size:11px;margin-top:13px}
+@media(max-width:980px) {
+  .grid {grid-template-columns:1fr}
+}
+@media(max-width:620px) {
+  .app {padding:14px}
+  .brand {font-size:20px}
+  .card {padding:16px}
+  .category-grid {grid-template-columns:repeat(2,minmax(0,1fr))}
+  .row3 {grid-template-columns:1fr 1fr}
+  .row3>.field:first-child {grid-column:span 2}
+  .color-grid {grid-template-columns:1fr 1fr}
+  .card-title {font-size:12px}
+  .preview-title {font-size:18px}
+  header button {font-size:11px;padding:8px}
 }
 </style>
 </head>
-
 <body>
+
 <div class="app">
 <header>
   <div class="brand">⚡ Quick <span>Cal</span></div>
-  <div class="header-actions">
-    <span id="connectionBadge" class="pill">Not connected</span>
-    <button id="settingsButton">⚙ Settings</button>
+  <div style="display:flex;align-items:center;gap:9px">
+    <span id="connectionBadge" class="pill">Not configured</span>
+    <button id="settingsBtn">⚙ Settings</button>
   </div>
 </header>
 
 <div id="dashboard" class="grid">
-  <div class="column">
+<div class="column">
 
-    <section class="card">
-      <div class="card-header">
-        <span class="card-title">✨ Smart natural-language input</span>
-        <span class="pill success">Auto parsing</span>
-      </div>
-      <p class="small">Type one event or paste a full schedule. Quick Cal detects dates, times, rooms and categories.</p>
-      <textarea id="prompt" style="margin-top:13px" placeholder="ARVP pool test Oct 17 6:15pm to 9pm at PAC Pool"></textarea>
-      <div class="preset-row">
-        <button data-preset="arvp">ARVP</button>
-        <button data-preset="classes">Fall Classes</button>
-        <button data-preset="labs">All Labs</button>
-        <button data-preset="exam">Midterm Prep</button>
-        <button data-preset="study">Studying</button>
-      </div>
-      <div class="toolbar">
-        <button class="ghost" id="clearPrompt">Clear input</button>
-      </div>
-    </section>
-
-    <section class="card" id="detailsCard">
-      <div class="card-header">
-        <span class="card-title">▦ Structured event details</span>
-        <span class="small">Editable</span>
-      </div>
-
-      <div class="field">
-        <label>Subject / Event title</label>
-        <input id="eventTitle" placeholder="Event title">
-      </div>
-
-      <div class="row3">
-        <div class="field">
-          <label>Date</label>
-          <input id="eventDate" type="date">
-        </div>
-        <div class="field">
-          <label>Start time</label>
-          <input id="eventStart" type="time">
-        </div>
-        <div class="field">
-          <label>End time</label>
-          <input id="eventEnd" type="time">
-        </div>
-      </div>
-
-      <div class="field">
-        <label>Category & colour</label>
-        <div id="categoryGrid" class="category-grid"></div>
-        <button id="addCategoryShortcut" class="ghost" style="margin-top:9px;align-self:flex-start">＋ Add custom category</button>
-      </div>
-
-      <div class="row">
-        <div class="field">
-          <label>Reminder</label>
-          <select id="eventReminder">
-            <option value="0">At event time</option>
-            <option value="15">15 minutes before</option>
-            <option value="30" selected>30 minutes before</option>
-            <option value="60">1 hour before</option>
-            <option value="1440">1 day before</option>
-            <option value="2880">2 days before</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Notification</label>
-          <select id="eventNotification">
-            <option value="popup">Pop-up</option>
-            <option value="email">Email</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>Location</label>
-        <input id="eventLocation" placeholder="ETLC E4-012, PAC Pool, library...">
-      </div>
-
-      <div class="field">
-        <label>Additional notes</label>
-        <input id="eventNotes" placeholder="Optional notes">
-      </div>
-    </section>
+<section class="card">
+  <div class="card-head">
+    <div class="card-title">✨ Smart natural-language input</div>
+    <span class="pill success">Free smart parser</span>
   </div>
-
-  <div class="column">
-    <section class="card">
-      <div class="card-header">
-        <span class="card-title">Live event preview</span>
-        <span id="durationBadge" class="pill">—</span>
-      </div>
-
-      <div id="singlePreview" class="preview">
-        <div class="preview-top">
-          <span id="previewCategory" class="pill">General</span>
-          <span id="previewDate" class="small">—</span>
-        </div>
-        <div id="previewTitle" class="preview-title">Start typing an event</div>
-        <div id="previewTime" class="preview-meta">🕒 —</div>
-        <div id="previewLocation" class="preview-meta"></div>
-        <div class="preview-tags">
-          <span id="previewReminder">🔔 30 minutes before</span>
-          <span id="previewColour">🎨 Custom colour</span>
-        </div>
-      </div>
-
-      <div id="batchPreview" class="batch-container hidden"></div>
-      <div id="warning" class="notice error hidden"></div>
-
-      <button id="syncButton" class="primary main-button">⚡ Add to Google Calendar</button>
-      <div class="action-row">
-        <button id="downloadICS">↓ Download .ICS</button>
-        <button id="copyEvent">⧉ Copy event</button>
-      </div>
-      <div id="syncStatus" class="notice hidden" role="status"></div>
-    </section>
-
-    <section class="card">
-      <div class="card-header">
-        <span class="card-title">🎨 Category colour mapping</span>
-        <button id="manageCategories" class="muted-link">Manage →</button>
-      </div>
-      <div id="colorMapping" class="color-map"></div>
-    </section>
-
-    <section class="card">
-      <div class="card-header">
-        <span class="card-title">◷ Recently scheduled</span>
-        <span id="recentCount" class="pill">0</span>
-      </div>
-      <div id="recentList"></div>
-    </section>
+  <p class="small">
+    Type naturally. No API key, no AI fees.
+    Review anything uncertain before syncing.
+  </p>
+  <textarea id="prompt" placeholder="Catch up on ECE370 lec 10-13 cameron library 4:00pm to 5:50pm"></textarea>
+  <div class="presets">
+    <button data-preset="arvp">ARVP</button>
+    <button data-preset="classes">Fall Classes</button>
+    <button data-preset="labs">All Labs</button>
+    <button data-preset="exam">Midterm Prep</button>
+    <button data-preset="study">Studying</button>
   </div>
+  <div style="text-align:right;margin-top:10px">
+    <button id="clearPrompt" class="ghost">Clear input</button>
+  </div>
+</section>
+
+<section class="card" id="detailsCard">
+  <div class="card-head">
+    <div class="card-title">▦ Event details</div>
+    <span class="small">Review & edit</span>
+  </div>
+  <div class="field">
+    <label for="eventTitle">Title</label>
+    <input id="eventTitle">
+  </div>
+  <div class="row3">
+    <div class="field">
+      <label for="eventDate">Date</label>
+      <input type="date" id="eventDate">
+    </div>
+    <div class="field">
+      <label for="eventStart">Start</label>
+      <input type="time" id="eventStart">
+    </div>
+    <div class="field">
+      <label for="eventEnd">End</label>
+      <input type="time" id="eventEnd">
+    </div>
+  </div>
+  <div class="field">
+    <label>Category</label>
+    <div id="categoryGrid" class="category-grid"></div>
+  </div>
+  <div class="row">
+    <div class="field">
+      <label for="eventReminder">Reminder</label>
+      <select id="eventReminder">
+        <option value="0">At event time</option>
+        <option value="15">15 minutes</option>
+        <option value="30" selected>30 minutes</option>
+        <option value="60">1 hour</option>
+        <option value="1440">1 day</option>
+        <option value="2880">2 days</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="eventNotification">Notification</label>
+      <select id="eventNotification">
+        <option value="popup">Pop-up</option>
+        <option value="email">Email</option>
+      </select>
+    </div>
+  </div>
+  <div class="field">
+    <label for="eventLocation">Location</label>
+    <input id="eventLocation" placeholder="Cameron Library, ETLC, etc.">
+  </div>
+  <div class="field">
+    <label for="eventNotes">Notes</label>
+    <input id="eventNotes" placeholder="Optional">
+  </div>
+</section>
 </div>
 
-<div id="settingsView" class="settings-page hidden">
-  <section class="card">
-    <div class="card-header">
-      <span class="card-title">⚙ Settings & credentials</span>
-      <button id="backButton">← Dashboard</button>
+<div class="column">
+<section class="card">
+  <div class="card-head">
+    <div class="card-title">Live event preview</div>
+    <span id="durationBadge" class="pill">—</span>
+  </div>
+  <div class="preview" id="singlePreview">
+    <div class="preview-top">
+      <span id="previewCategory" class="pill">General</span>
+      <span id="previewDate" class="small">—</span>
     </div>
-
-    <div class="settings-section">
-      <h2>Google Calendar connection</h2>
-      <p class="help">Enter your Google Cloud OAuth Web Client ID. Enable Google Calendar API and authorize your GitHub Pages website origin.</p>
-      <div class="field">
-        <label>OAuth Client ID</label>
-        <input id="clientId" placeholder="123456789.apps.googleusercontent.com">
-      </div>
-      <button id="saveCredentials" class="primary">Save credentials</button>
+    <div id="previewTitle" class="preview-title">Start typing an event</div>
+    <div id="previewTime" class="preview-meta">🕒 —</div>
+    <div id="previewLocation" class="preview-meta"></div>
+    <div class="preview-tags">
+      <span id="previewReminder">🔔 30 min before</span>
+      <span id="previewColour">🎨 Custom colour</span>
     </div>
+  </div>
+  <div id="batchPreview" class="batch-list hidden"></div>
+  <div id="warning" class="notice error hidden"></div>
+  <button class="primary wide" id="syncBtn">⚡ Add to Google Calendar</button>
+  <div class="actions">
+    <button id="icsBtn">↓ Download .ICS</button>
+    <button id="copyBtn">⧉ Copy event</button>
+  </div>
+  <div class="notice hidden" id="syncStatus" role="status"></div>
+</section>
 
-    <div class="settings-section">
-      <h2>Academic term</h2>
-      <p class="help">Used as the end date for recurring classes and seminars.</p>
-      <div class="field">
-        <label>Term end date</label>
-        <input id="termEnd" type="date">
-      </div>
-      <button id="saveTerm">Save term date</button>
-    </div>
+<section class="card">
+  <div class="card-head">
+    <div class="card-title">🎨 Categories & colours</div>
+    <span class="small">Tap to edit</span>
+  </div>
+  <div id="colorMapping" class="color-grid"></div>
+  <p class="footer-note">
+    Colour dots match your category chips and event preview.
+    Google Calendar uses the closest available colour.
+  </p>
+</section>
 
-    <div class="settings-section">
-      <h2>Custom categories</h2>
-      <p class="help">Create, edit or delete categories. Choose a custom display colour and matching Google Calendar colour.</p>
-
-      <div class="row">
-        <div class="field">
-          <label>Category name</label>
-          <input id="newCategoryName" placeholder="e.g. PCB Design">
-        </div>
-        <div class="field">
-          <label>Display colour</label>
-          <input id="newCategoryColour" type="color" value="#51a4ed">
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="field">
-          <label>Google Calendar colour</label>
-          <select id="newCategoryGoogleColour"></select>
-        </div>
-        <div class="field">
-          <label>Auto-detect keywords</label>
-          <input id="newCategoryKeywords" placeholder="pcb, altium, schematic">
-        </div>
-      </div>
-      <button id="saveCategory" class="primary">＋ Add category</button>
-      <div id="manageCategoryList" style="margin-top:15px"></div>
-    </div>
-    <p class="small" style="margin-top:25px">Preferences and recent activity are stored locally on each device. Google Calendar events sync through your Google account.</p>
-    <div id="settingsStatus" class="notice hidden"></div>
-  </section>
+<section class="card">
+  <div class="card-head">
+    <div class="card-title">◷ Recently scheduled</div>
+    <span id="recentCount" class="pill">0</span>
+  </div>
+  <div id="recentList"></div>
+</section>
 </div>
+</div>
+
+<div id="settingsView" class="settings-view hidden">
+<section class="card">
+  <div class="card-head">
+    <div class="card-title">⚙ Settings</div>
+    <button id="backBtn">← Back</button>
+  </div>
+  <div class="settings-block">
+    <h2>Google Calendar</h2>
+    <p class="small">
+      Use an OAuth 2.0 Web Client ID from Google Cloud.
+      Enable the Google Calendar API and authorize your GitHub Pages origin.
+      Never put a client secret here.
+    </p>
+    <div class="field">
+      <label for="clientId">OAuth Client ID</label>
+      <input id="clientId" placeholder="...apps.googleusercontent.com">
+    </div>
+    <button class="primary" id="saveCredentials">Save OAuth settings</button>
+  </div>
+  <div class="settings-block">
+    <h2>Academic term</h2>
+    <p class="small">
+      Recurring classes stop on this date.
+      Your Fall 2026 sample presets are optional and never synced automatically.
+    </p>
+    <div class="field">
+      <label for="termStart">Term start</label>
+      <input type="date" id="termStart">
+    </div>
+    <div class="field">
+      <label for="termEnd">Term end</label>
+      <input type="date" id="termEnd">
+    </div>
+    <button id="saveTerm">Save term dates</button>
+  </div>
+  <div id="settingsStatus" class="notice hidden"></div>
+</section>
+</div>
+</div>
+
+<div id="modalBackdrop" class="modal-backdrop hidden">
+<section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <h2 id="modalTitle">Add a category</h2>
+  <p class="help">
+    Set the colour once and Quick Cal will use it throughout the interface.
+    Keywords help classify events for free.
+  </p>
+  <div class="field">
+    <label for="catName">Category name</label>
+    <input id="catName" placeholder="e.g. Class Catch Up">
+  </div>
+  <div class="row">
+    <div class="field">
+      <label for="catColour">Display colour</label>
+      <input type="color" id="catColour" value="#5e8cb4">
+    </div>
+    <div class="field">
+      <label for="catGoogle">Google Calendar colour</label>
+      <select id="catGoogle"></select>
+    </div>
+  </div>
+  <div class="field">
+    <label for="catKeywords">Keywords (optional)</label>
+    <input id="catKeywords" placeholder="catch up, catch-up, lecture review">
+    <span class="small">
+      Longer keyword phrases help distinguish categories.
+    </span>
+  </div>
+  <div id="catStatus" class="notice error hidden"></div>
+  <div class="modal-actions">
+    <button class="ghost hidden" id="deleteCat">Delete category</button>
+    <div class="right">
+      <button class="ghost" id="cancelCat">Cancel</button>
+      <button class="primary" id="saveCat">Save category</button>
+    </div>
+  </div>
+</section>
 </div>
 
 <script>
 "use strict";
 
-const $ = id => document.getElementById(id);
-const STORAGE = "quickcal_sleek_v1_";
+const $=id=>document.getElementById(id);
+const KEY="quickcal_sleek_v2_";
 
-const GOOGLE_COLOURS = {
-  "1":["Lavender","#a4bdfc"],
-  "2":["Sage","#7ae7bf"],
-  "3":["Grape","#dbadff"],
-  "4":["Flamingo","#ff887c"],
-  "5":["Banana","#fbd75b"],
-  "6":["Tangerine","#ffb878"],
-  "7":["Peacock","#46d6db"],
-  "8":["Graphite","#e1e1e1"],
-  "9":["Blueberry","#5484ed"],
-  "10":["Basil","#51b749"],
-  "11":["Tomato","#dc2127"]
+const GOOGLE={
+  1:["Lavender","#a4bdfc"],
+  2:["Sage","#7ae7bf"],
+  3:["Grape","#dbadff"],
+  4:["Flamingo","#ff887c"],
+  5:["Banana","#fbd75b"],
+  6:["Tangerine","#ffb878"],
+  7:["Peacock","#46d6db"],
+  8:["Graphite","#e1e1e1"],
+  9:["Blueberry","#5484ed"],
+  10:["Basil","#51b749"],
+  11:["Tomato","#dc2127"]
 };
 
-const DEFAULT_CATEGORIES = [
-  {id:"arvp",name:"ARVP Project",colour:"#53bf72",google:"10",keywords:["arvp","robotics","pool test"]},
-  {id:"classes",name:"Lectures / Classes",colour:"#5484ed",google:"9",keywords:["lecture","class","ece","math"]},
-  {id:"labs",name:"Labs & Seminars",colour:"#ef575c",google:"11",keywords:["lab","seminar"]},
-  {id:"study",name:"Studying",colour:"#ca9af2",google:"3",keywords:["study","studying","review","homework"]},
+const DEFAULT=[
+  {id:"arvp",name:"ARVP Project",colour:"#51b749",google:"10",keywords:["arvp","robotics","pool test"]},
+  {id:"class",name:"Lectures / Classes",colour:"#5484ed",google:"9",keywords:["lecture","class","ece","math"]},
+  {id:"lab",name:"Labs & Seminars",colour:"#dc2127",google:"11",keywords:["lab","seminar"]},
+  {id:"study",name:"Studying",colour:"#bb90ed",google:"3",keywords:["study","studying","review","homework"]},
   {id:"exam",name:"Midterm Prep",colour:"#ff887c",google:"4",keywords:["midterm","exam","quiz","prep"]},
-  {id:"project",name:"Work on Project",colour:"#47ced5",google:"7",keywords:["project","pcb","github","altium"]},
-  {id:"personal",name:"Personal",colour:"#aeb8c5",google:"8",keywords:["personal","appointment"]}
+  {id:"project",name:"Work on Project",colour:"#46d6db",google:"7",keywords:["project","pcb","altium","github"]},
+  {id:"personal",name:"Personal",colour:"#aab5c0",google:"8",keywords:["personal","appointment"]}
 ];
 
-const PRESETS = {
+const PRESETS={
   arvp:"ARVP pool test Oct 17 6:15pm to 9pm at PAC Pool",
   study:"Study ECE 312 tomorrow 2pm to 4pm at Cameron Library",
   exam:"ECE 302 midterm prep tomorrow 5pm to 8pm",
@@ -487,306 +458,420 @@ ECE 312 Lab Oct 21 2pm to 4:50pm at ETLC E4-012
 ECE 302 Lab Oct 29 2pm to 4:50pm at ETLC E4-001`
 };
 
-function load(key,fallback){
-  try {
-    const data=JSON.parse(localStorage.getItem(STORAGE+key));
-    return data ?? fallback;
-  }catch{return fallback;}
+const LOCATION_ALIASES=[
+  ["Cameron Library",/\bcameron(?:\s+library|\s+lib)?\b/i],
+  ["Rutherford Library",/\brutherford(?:\s+library|\s+lib)?\b/i],
+  ["PAC Pool",/\bpac\s+pool\b/i],
+  ["ETLC",/\betlc(?:\s+[a-z]\d?[-\d]*)?\b/i],
+  ["ECERF",/\becerf(?:\s+[a-z]\d?[-\d]*)?\b/i],
+  ["CCIS",/\bccis(?:\s+[a-z]\d?[-\d]*)?\b/i],
+  ["NRE",/\bnre(?:\s+\d[-\d]*)?\b/i],
+  ["MEC",/\bmec(?:\s+\d[-\d]*)?\b/i],
+  ["DICE",/\bdice\b/i],
+  ["SUB",/\bsub\b/i]
+];
+
+function read(k,def){
+  try{return JSON.parse(localStorage.getItem(KEY+k))??def}
+  catch{return def}
 }
 
-let categories=load("categories",DEFAULT_CATEGORIES);
-let recent=load("recent",[]);
-let clientId=localStorage.getItem(STORAGE+"clientId")||"";
-let termEnd=localStorage.getItem(STORAGE+"termEnd")||"2026-12-08";
+let categories=read("categories",DEFAULT);
+let recent=read("recent",[]);
+let clientId=localStorage.getItem(KEY+"clientId")||"";
+let termStart=localStorage.getItem(KEY+"termStart")||"2026-09-01";
+let termEnd=localStorage.getItem(KEY+"termEnd")||"2026-12-08";
 let events=[];
-let activeCategory="personal";
-let editingCategory=null;
+let activeCategory=categories[0]?.id||"class";
+let editing=null;
 
-function save(key,value){
-  localStorage.setItem(STORAGE+key,JSON.stringify(value));
-}
+function store(k,v){localStorage.setItem(KEY+k,JSON.stringify(v))}
+const pad=n=>String(n).padStart(2,"0");
 
-function dateString(d){
-  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+function ymd(d){
+  return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
 }
-function dateFromString(s){
+function localDate(s){
   const [y,m,d]=s.split("-").map(Number);
   return new Date(y,m-1,d);
 }
-function moveDays(date,n){
-  const d=new Date(date);
-  d.setDate(d.getDate()+n);
-  return d;
+function plusDays(d,n){
+  const a=new Date(d);a.setDate(a.getDate()+n);return a;
 }
-function shortTime(d){
-  return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
+function hhmm(d){return pad(d.getHours())+":"+pad(d.getMinutes())}
+function prettyTime(d){return d.toLocaleTimeString("en-CA",{hour:"numeric",minute:"2-digit"})}
+function prettyDate(d){return d.toLocaleDateString("en-CA",{month:"short",day:"numeric",year:"numeric"})}
+function create(t,cls,txt){
+  const e=document.createElement(t);
+  if(cls)e.className=cls;
+  if(txt!==undefined)e.textContent=txt;
+  return e;
 }
-function displayTime(d){
-  return d.toLocaleTimeString("en-CA",{hour:"numeric",minute:"2-digit"});
+function category(id){
+  return categories.find(c=>c.id===id)||categories[0]||DEFAULT[0];
 }
-function displayDate(d){
-  return d.toLocaleDateString("en-CA",{month:"short",day:"numeric",year:"numeric"});
+function uid(){
+  return crypto.randomUUID?.()||String(Date.now()+Math.random());
 }
-function getCategory(id){
-  return categories.find(c=>c.id===id)||categories[0]||DEFAULT_CATEGORIES[0];
+function hexRgb(hex){
+  return [1,3,5].map(i=>parseInt(hex.slice(i,i+2),16));
 }
-function safeId(){
-  return crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random());
+function nearestGoogle(hex){
+  const a=hexRgb(hex);
+  let best="9",dist=Infinity;
+  for(const [id,entry] of Object.entries(GOOGLE)){
+    const b=hexRgb(entry[1]);
+    const v=a.reduce((sum,n,i)=>sum+(n-b[i])**2,0);
+    if(v<dist){best=id;dist=v}
+  }
+  return best;
 }
-function el(tag,className,text){
-  const node=document.createElement(tag);
-  if(className)node.className=className;
-  if(text!==undefined)node.textContent=text;
-  return node;
+
+function catScore(c,s){
+  let score=0;
+  for(const kw of c.keywords||[]){
+    if(!kw.trim())continue;
+    const term=kw.toLowerCase().trim();
+    const source=s.toLowerCase();
+    if(source.includes(term)){
+      score=Math.max(score,term.length+(term.includes(" ")?8:0));
+    }
+  }
+  return score;
 }
 function detectCategory(text){
-  const lower=text.toLowerCase();
-  const match=categories.find(c=>
-    c.keywords.some(k=>lower.includes(k.toLowerCase()))
-  );
-  return match?.id||categories[0]?.id||"personal";
+  const scored=categories.map(c=>[c,catScore(c,text)])
+    .sort((a,b)=>b[1]-a[1]);
+  const studyIntent=/\b(catch\s*up|catch-up|review|revise|study|studying)\b/i.test(text);
+  const study=scored.find(x=>x[0].id==="study"||/studying/i.test(x[0].name));
+  if(studyIntent&&study&&scored[0]?.[1]<18)return study[0].id;
+  return scored[0]?.[1]>0?scored[0][0].id:
+    categories.find(c=>c.id==="personal")?.id||categories[0].id;
 }
 
 function renderCategories(){
-  const grid=$("categoryGrid");
+  const chips=$("categoryGrid");
   const map=$("colorMapping");
-  const manage=$("manageCategoryList");
-  grid.replaceChildren();
+  chips.replaceChildren();
   map.replaceChildren();
-  manage.replaceChildren();
 
-  categories.forEach(c=>{
-    const button=el("button","category-button"+(c.id===activeCategory?" active":""));
-    const dot=el("span","dot");
+  for(const c of categories){
+    const chip=create("button","category-button"+(c.id===activeCategory?" active":""));
+    const dot=create("span","dot");
     dot.style.background=c.colour;
-    button.append(dot,el("span","",c.name));
-    button.onclick=()=>{
+    chip.append(dot,create("span","",c.name));
+    chip.onclick=()=>{
       activeCategory=c.id;
       if(events.length===1)events[0].category=c.id;
       renderCategories();
       renderPreview();
     };
-    grid.append(button);
+    chips.append(chip);
 
-    const item=el("div","color-item");
-    const swatch=el("span","dot");
-    swatch.style.background=c.colour;
-    const info=el("div");
+    const entry=create("button","color-entry");
+    const d=create("span","dot");
+    d.style.background=c.colour;
+    const info=create("div");
     info.append(
-      el("strong","",c.name),
-      el("small","",GOOGLE_COLOURS[c.google]?.[0]||"Custom")
+      create("strong","",c.name),
+      create("small","",GOOGLE[c.google]?.[0]||"Custom")
     );
-    item.append(swatch,info);
-    map.append(item);
+    entry.append(d,info);
+    entry.title="Edit "+c.name;
+    entry.onclick=()=>openCat(c.id);
+    map.append(entry);
+  }
 
-    const row=el("div","manage-item");
-    const left=el("div");
-    left.append(el("strong","",c.name));
-    left.append(el("div","small","Keywords: "+c.keywords.join(", ")));
-    const actions=el("div");
-    const edit=el("button","","Edit");
-    const remove=el("button","danger","Delete");
-    edit.onclick=()=>editCategory(c.id);
-    remove.onclick=()=>deleteCategory(c.id);
-    actions.append(edit,remove);
-    row.append(left,actions);
-    manage.append(row);
-  });
+  const plus=create("button","color-add","＋ Add category");
+  plus.onclick=()=>openCat();
+  map.append(plus);
 }
 
-function editCategory(id){
-  const c=getCategory(id);
-  editingCategory=id;
-  $("newCategoryName").value=c.name;
-  $("newCategoryColour").value=c.colour;
-  $("newCategoryGoogleColour").value=c.google;
-  $("newCategoryKeywords").value=c.keywords.join(", ");
-  $("saveCategory").textContent="Save category changes";
-  $("newCategoryName").focus();
+function openCat(id=null){
+  editing=id;
+  const c=id?category(id):null;
+  $("modalTitle").textContent=c?"Edit category":"Add category";
+  $("catName").value=c?.name||"";
+  $("catColour").value=c?.colour||"#5e8cb4";
+  $("catGoogle").value=c?.google||nearestGoogle("#5e8cb4");
+  $("catKeywords").value=(c?.keywords||[]).join(", ");
+  $("deleteCat").classList.toggle("hidden",!c);
+  $("catStatus").classList.add("hidden");
+  $("modalBackdrop").classList.remove("hidden");
+  $("catName").focus();
 }
-
-function deleteCategory(id){
-  if(categories.length===1){
-    showStatus("Keep at least one category.",true,"settingsStatus");
+function closeCat(){
+  $("modalBackdrop").classList.add("hidden");
+  editing=null;
+}
+function saveCat(){
+  const name=$("catName").value.trim();
+  if(!name){
+    status("Enter a category name.",true,"catStatus");
+    return;
+  }
+  const c={
+    id:editing||uid(),
+    name,
+    colour:$("catColour").value,
+    google:$("catGoogle").value,
+    keywords:$("catKeywords").value.split(",").map(x=>x.trim().toLowerCase()).filter(Boolean)
+  };
+  if(editing)categories=categories.map(x=>x.id===editing?c:x);
+  else categories.push(c);
+  store("categories",categories);
+  activeCategory=c.id;
+  closeCat();
+  renderCategories();
+  renderPreview();
+}
+function deleteCat(){
+  if(categories.length<2){
+    status("Keep at least one category.",true,"catStatus");
     return;
   }
   if(!confirm("Delete this category?"))return;
-  categories=categories.filter(c=>c.id!==id);
-  if(activeCategory===id)activeCategory=categories[0].id;
-  save("categories",categories);
-  editingCategory=null;
-  resetCategoryForm();
+  categories=categories.filter(x=>x.id!==editing);
+  if(activeCategory===editing)activeCategory=categories[0].id;
+  store("categories",categories);
+  closeCat();
   renderCategories();
   renderPreview();
 }
 
-function resetCategoryForm(){
-  $("newCategoryName").value="";
-  $("newCategoryColour").value="#51a4ed";
-  $("newCategoryGoogleColour").value="9";
-  $("newCategoryKeywords").value="";
-  $("saveCategory").textContent="＋ Add category";
-}
-
-function saveCategory(){
-  const name=$("newCategoryName").value.trim();
-  if(!name){
-    showStatus("Enter a category name.",true,"settingsStatus");
-    return;
-  }
-  const item={
-    id:editingCategory||safeId(),
-    name,
-    colour:$("newCategoryColour").value,
-    google:$("newCategoryGoogleColour").value,
-    keywords:$("newCategoryKeywords").value.split(",").map(x=>x.trim().toLowerCase()).filter(Boolean)
-  };
-  if(editingCategory){
-    categories=categories.map(c=>c.id===editingCategory?item:c);
-  }else{
-    categories.push(item);
-  }
-  activeCategory=item.id;
-  editingCategory=null;
-  save("categories",categories);
-  resetCategoryForm();
-  renderCategories();
-  renderPreview();
-  showStatus("Category saved.",false,"settingsStatus");
-}
-
-function parseClock(value){
-  const m=value.trim().match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm)?$/i);
+// SMART PARSER
+function parseNamedDate(s,ref=new Date()){
+  const m=s.match(/(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+(\d{1,2})(?:,?\s*(\d{4}))?/i);
   if(!m)return null;
-  let hour=Number(m[1]),minute=Number(m[2]||0);
-  const ap=(m[3]||"").toLowerCase();
-  if(minute>59||hour>23)return null;
-  if(ap){
-    if(hour<1||hour>12)return null;
-    hour=hour%12+(ap==="pm"?12:0);
-  }
-  return {hour,minute,ap};
-}
-
-function parseNamedDate(text){
-  const m=text.match(/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+(\d{1,2})(?:,?\s*(\d{4}))?/i);
-  if(!m)return null;
-  const month=["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"].indexOf(m[1].slice(0,3).toLowerCase());
-  const now=new Date();
-  const year=m[3]?Number(m[3]):now.getFullYear();
-  const d=new Date(year,month,Number(m[2]));
-  if(!m[3]&&d<new Date(now.getFullYear(),now.getMonth(),now.getDate()))d.setFullYear(year+1);
+  const month=["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"]
+    .indexOf(m[1].slice(0,3).toLowerCase());
+  const y=m[3]?+m[3]:ref.getFullYear();
+  const d=new Date(y,month,+m[2]);
+  if(d.getMonth()!==month)return null;
+  if(!m[3]&&d<new Date(ref.getFullYear(),ref.getMonth(),ref.getDate()))
+    d.setFullYear(y+1);
   return d;
 }
 
+function clockPart(s){
+  const m=s.trim().match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm)?$/i);
+  if(!m)return null;
+  let h=+m[1];
+  const minute=+(m[2]||0);
+  const ap=(m[3]||"").toLowerCase();
+  if(minute>59)return null;
+  if(ap){
+    if(h<1||h>12)return null;
+    h=h%12+(ap==="pm"?12:0);
+  }else if(h>23)return null;
+  return {h,minute,ap};
+}
+
 function parseEvent(line){
-  const raw=line.trim();
-  let text=raw;
+  const original=line.trim();
+  let text=original;
   const now=new Date();
   let d=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  const warnings=[];
   let recurrence=null;
-  let assumed=false;
 
-  const rec=text.match(/\bevery\s+(MWF|TTH|TR|Tue\s*\/\s*Thu|Monday|Tuesday|Wednesday|Thursday|Friday)\b/i);
-  if(rec){
-    const key=rec[1].toLowerCase().replace(/\s+/g,"");
-    const days=key==="mwf"?"MO,WE,FR":
-      ["tth","tr","tue/thu"].includes(key)?"TU,TH":
-      ({monday:"MO",tuesday:"TU",wednesday:"WE",thursday:"TH",friday:"FR"}[key]||"MO");
+  const recurrenceMatch=text.match(
+    /\bevery\s+(MWF|TTH|TR|Tue\s*\/\s*Thu|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\b/i
+  );
+  let days=null;
 
-    const end=dateFromString(termEnd);
-    end.setHours(23,59,59);
-    recurrence="RRULE:FREQ=WEEKLY;BYDAY="+days+";UNTIL="+end.toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,"");
-
-    const desired=days.split(",").map(x=>["SU","MO","TU","WE","TH","FR","SA"].indexOf(x));
-    const termStart=new Date(d.getFullYear(),8,1);
-    if(termStart>d)d=termStart;
-    for(let i=0;i<7;i++){
-      if(desired.includes(moveDays(d,i).getDay())){
-        d=moveDays(d,i);
-        break;
-      }
-    }
-    text=text.replace(rec[0]," ");
+  if(recurrenceMatch){
+    const k=recurrenceMatch[1].toLowerCase().replace(/\s+/g,"");
+    days=k==="mwf"?"MO,WE,FR":
+      ["tth","tr","tue/thu"].includes(k)?"TU,TH":
+      ({
+        monday:"MO",tuesday:"TU",wednesday:"WE",thursday:"TH",
+        friday:"FR",saturday:"SA",sunday:"SU"
+      }[k]);
+    text=text.replace(recurrenceMatch[0]," ");
   }
 
-  const iso=text.match(/\b(20\d{2}-\d{2}-\d{2})\b/);
-  const named=text.match(/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2}(?:,?\s*\d{4})?/i);
-  const relative=text.match(/\b(today|tomorrow|next\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)[a-z]*|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\b/i);
+  const until=text.match(
+    /\buntil\s+((?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{1,2}(?:,?\s*\d{4})?|20\d{2}-\d{2}-\d{2})\b/i
+  );
+  let endOfTerm=termEnd;
+  if(until){
+    endOfTerm=/^20\d{2}-/.test(until[1])?
+      until[1]:ymd(parseNamedDate(until[1],now));
+    text=text.replace(until[0]," ");
+  }
+
+  const iso=text.match(/\b20\d{2}-\d{2}-\d{2}\b/);
+  const named=text.match(
+    /\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{1,2}(?:,?\s*\d{4})?\b/i
+  );
+  const relative=text.match(
+    /\b(today|tmr|tmrw|tomorrow|next\s+(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*|(?:this\s+)?(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)|in\s+\d+\s+days?)\b/i
+  );
+  let dated=false;
 
   if(iso){
-    d=dateFromString(iso[1]);
+    d=localDate(iso[0]);
+    dated=true;
     text=text.replace(iso[0]," ");
   }else if(named){
-    d=parseNamedDate(named[0]);
+    d=parseNamedDate(named[0],now);
+    dated=true;
     text=text.replace(named[0]," ");
-  }else if(relative&&!rec){
-    const val=relative[0].toLowerCase();
-    if(val==="tomorrow")d=moveDays(d,1);
-    else if(val!=="today"){
-      const key=val.replace("next ","").slice(0,3);
-      const target={sun:0,mon:1,tue:2,wed:3,thu:4,fri:5,sat:6}[key];
-      let delta=(target-d.getDay()+7)%7;
-      if(val.startsWith("next "))delta=delta||7;
-      d=moveDays(d,delta);
+  }else if(relative){
+    const v=relative[0].toLowerCase();
+    if(/tomorrow|tmr/.test(v)){
+      d=plusDays(d,1);
+    }else if(v.startsWith("in ")){
+      d=plusDays(d,parseInt(v.match(/\d+/)[0]));
+    }else if(v!=="today"){
+      const k=v.replace(/^(next|this)\s+/,"").slice(0,3);
+      const dest={sun:0,mon:1,tue:2,wed:3,thu:4,fri:5,sat:6}[k];
+      let step=(dest-d.getDay()+7)%7;
+      if(v.startsWith("next "))step=step||7;
+      d=plusDays(d,step);
     }
+    dated=true;
     text=text.replace(relative[0]," ");
   }
 
-  const range=text.match(/(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)\s*(?:to|–|—|-)\s*(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)/i);
-  const single=text.match(/\b(\d{1,2}(?::\d{2})?\s*(?:am|pm))\b/i);
-
-  const start=new Date(d);
-  let end=new Date(d);
-
-  if(range){
-    let a=parseClock(range[1]),b=parseClock(range[2]);
-    if(a&&b){
-      if(!a.ap&&b.ap)a=parseClock(range[1].trim()+b.ap);
-      start.setHours(a.hour,a.minute,0,0);
-      end.setHours(b.hour,b.minute,0,0);
-      if(end<=start)end.setDate(end.getDate()+1);
-      text=text.replace(range[0]," ");
-    }else assumed=true;
-  }else if(single){
-    const a=parseClock(single[1]);
-    start.setHours(a.hour,a.minute,0,0);
-    end=new Date(start.getTime()+3600000);
-    text=text.replace(single[0]," ");
-  }else{
-    start.setHours(14,0,0,0);
-    end.setHours(15,0,0,0);
-    assumed=true;
+  if(days){
+    if(!dated)d=localDate(termStart);
+    const wanted=days.split(",").map(x=>
+      ["SU","MO","TU","WE","TH","FR","SA"].indexOf(x)
+    );
+    for(let i=0;i<7;i++){
+      if(wanted.includes(plusDays(d,i).getDay())){
+        d=plusDays(d,i);
+        break;
+      }
+    }
+    const untilDate=localDate(endOfTerm);
+    untilDate.setHours(23,59,59);
+    recurrence="RRULE:FREQ=WEEKLY;BYDAY="+days+
+      ";UNTIL="+untilDate.toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,"");
+    if(d>untilDate)warnings.push("Event starts after recurrence end.");
   }
 
-  const duration=text.match(/\bfor\s+(\d+(?:\.\d+)?)\s*(hours?|hrs?|minutes?|mins?)\b/i);
-  if(duration){
-    const multiplier=duration[2].toLowerCase().startsWith("h")?3600000:60000;
-    end=new Date(start.getTime()+Number(duration[1])*multiplier);
-    text=text.replace(duration[0]," ");
+  // Time range must have AM/PM or ':' so "lec 10-13" is ignored.
+  const rangeRE=/(\b\d{1,2}(?::\d{2})?\s*(?:am|pm)?)\s*(to|–|—|-)\s*(\d{1,2}(?::\d{2})?\s*(?:am|pm)?\b)/gi;
+  const choices=[...text.matchAll(rangeRE)]
+    .filter(m=>/am|pm|:/i.test(m[0]));
+
+  choices.sort((a,b)=>
+    ((b[0].match(/am|pm/gi)||[]).length*10+(b[0].match(/:/g)||[]).length)-
+    ((a[0].match(/am|pm/gi)||[]).length*10+(a[0].match(/:/g)||[]).length)
+  );
+
+  const range=choices[0];
+  const start=new Date(d);
+  let end=new Date(d);
+  let timeFound=false;
+
+  if(range){
+    let a=clockPart(range[1]);
+    const b=clockPart(range[3]);
+    if(a&&b){
+      if(!a.ap&&b.ap&&a.h<=12)a=clockPart(range[1].trim()+b.ap);
+      if(a&&a.h<24&&b.h<24){
+        start.setHours(a.h,a.minute,0,0);
+        end.setHours(b.h,b.minute,0,0);
+        if(end<=start)end.setDate(end.getDate()+1);
+        timeFound=true;
+        text=text.replace(range[0]," ");
+      }
+    }
+  }
+
+  // "4pm to 550" -> 4:00 PM to 5:50 PM
+  if(!timeFound){
+    const informal=text.match(
+      /\b(\d{1,2}(?::\d{2})?\s*(?:am|pm))\s*(?:to|-|–|—)\s*(\d{3,4})\b/i
+    );
+    if(informal){
+      const a=clockPart(informal[1]);
+      const digits=informal[2];
+      const hour=Number(digits.slice(0,-2));
+      const minute=Number(digits.slice(-2));
+      if(a&&hour<=12&&minute<60){
+        const b=clockPart(hour+":"+pad(minute)+a.ap);
+        start.setHours(a.h,a.minute,0,0);
+        end.setHours(b.h,b.minute,0,0);
+        if(end<=start)end.setDate(end.getDate()+1);
+        timeFound=true;
+        text=text.replace(informal[0]," ");
+      }
+    }
+  }
+
+  if(!timeFound){
+    const single=text.match(/\b(\d{1,2}(?::\d{2})?\s*(?:am|pm))\b/i);
+    if(single){
+      const a=clockPart(single[1]);
+      if(a){
+        start.setHours(a.h,a.minute,0,0);
+        end=new Date(start.getTime()+3600000);
+        timeFound=true;
+        text=text.replace(single[0]," ");
+        warnings.push("No end time supplied; assumed 1 hour.");
+      }
+    }
+  }
+
+  if(!timeFound){
+    start.setHours(14,0,0,0);
+    end.setHours(15,0,0,0);
+    warnings.push("No time found; assumed 2:00–3:00 PM.");
+  }
+
+  const dur=text.match(/\bfor\s+(\d+(?:\.\d+)?)\s*(hours?|hrs?|minutes?|mins?)\b/i);
+  if(dur){
+    const ms=+dur[1]*(dur[2].toLowerCase().startsWith("h")?3600000:60000);
+    end=new Date(start.getTime()+ms);
+    text=text.replace(dur[0]," ");
   }
 
   let location="";
-  const loc=text.match(/\b(?:at|in)\s+([A-Za-z][A-Za-z0-9 ._\/-]{1,45})\s*$/i);
-  if(loc){
-    location=loc[1].trim();
-    text=text.replace(loc[0]," ");
+  for(const [name,re] of LOCATION_ALIASES){
+    const loc=text.match(re);
+    if(loc){
+      location=["ETLC","ECERF","CCIS","NRE","MEC"].includes(name)?
+        loc[0]:name;
+      text=text.replace(loc[0]," ");
+      text=text.replace(/\b(?:at|in)\s*$/i," ");
+      break;
+    }
   }
 
-  const title=text.replace(/\s+/g," ").trim().replace(/[,;]$/,"")||"Untitled event";
-  const cat=detectCategory(raw);
+  if(!location){
+    const loc=text.match(
+      /\b(?:at|in)\s+([A-Za-z][A-Za-z0-9 ._\/-]{1,45})\s*$/i
+    );
+    if(loc){
+      location=loc[1].trim();
+      text=text.replace(loc[0]," ");
+    }
+  }
 
-  return {title,start,end,location,category:cat,notes:"",reminder:30,notification:"popup",recurrence,assumed};
+  const title=text.replace(/\s+/g," ").replace(/\s+[,;]+\s*$/,"").trim()
+    ||"Untitled event";
+  if(!dated&&!days)warnings.push("No date supplied; assumed today.");
+
+  return {
+    title,start,end,location,
+    category:detectCategory(original),
+    notes:"",reminder:30,notification:"popup",
+    recurrence,warnings,raw:original
+  };
 }
 
 function updatePrompt(){
-  const lines=$("prompt").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  const lines=$("prompt").value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
   events=lines.map(parseEvent);
   const batch=events.length>1;
   $("detailsCard").classList.toggle("hidden",batch);
   $("singlePreview").classList.toggle("hidden",batch);
   $("batchPreview").classList.toggle("hidden",!batch);
-
   if(events.length===1){
     activeCategory=events[0].category;
     fillForm(events[0]);
@@ -797,9 +882,9 @@ function updatePrompt(){
 
 function fillForm(e){
   $("eventTitle").value=e.title;
-  $("eventDate").value=dateString(e.start);
-  $("eventStart").value=shortTime(e.start);
-  $("eventEnd").value=shortTime(e.end);
+  $("eventDate").value=ymd(e.start);
+  $("eventStart").value=hhmm(e.start);
+  $("eventEnd").value=hhmm(e.end);
   $("eventLocation").value=e.location;
   $("eventNotes").value=e.notes;
   $("eventReminder").value=e.reminder;
@@ -813,26 +898,26 @@ function updateFromForm(){
   e.category=activeCategory;
   e.location=$("eventLocation").value.trim();
   e.notes=$("eventNotes").value.trim();
-  e.reminder=Number($("eventReminder").value);
+  e.reminder=+$("eventReminder").value;
   e.notification=$("eventNotification").value;
 
   const date=$("eventDate").value;
-  const start=$("eventStart").value;
-  const end=$("eventEnd").value;
-  if(date&&start&&end){
-    e.start=new Date(date+"T"+start);
-    e.end=new Date(date+"T"+end);
+  const from=$("eventStart").value;
+  const to=$("eventEnd").value;
+  if(date&&from&&to){
+    e.start=new Date(date+"T"+from);
+    e.end=new Date(date+"T"+to);
     if(e.end<=e.start)e.end.setDate(e.end.getDate()+1);
   }
-  e.assumed=false;
+  e.warnings=[];
   renderPreview();
 }
 
 function renderPreview(){
   const e=events[0];
-  $("syncButton").disabled=!e;
-  $("downloadICS").disabled=!e;
-  $("copyEvent").disabled=!e;
+  $("syncBtn").disabled=!e;
+  $("icsBtn").disabled=!e;
+  $("copyBtn").disabled=!e;
   $("warning").classList.add("hidden");
 
   if(!e){
@@ -841,102 +926,105 @@ function renderPreview(){
     $("previewTime").textContent="🕒 —";
     $("previewLocation").textContent="";
     $("durationBadge").textContent="—";
-    $("syncButton").textContent="⚡ Add to Google Calendar";
+    $("syncBtn").textContent="⚡ Add to Google Calendar";
     return;
   }
 
   const batch=events.length>1;
-  $("syncButton").textContent=batch?
-    "⚡ Add "+events.length+" Events to Google Calendar":
+  $("syncBtn").textContent=batch?
+    "⚡ Add "+events.length+" events to Google Calendar":
     "⚡ Add to Google Calendar";
 
-  if(events.some(x=>x.assumed)){
-    $("warning").textContent="Some events have no detected time. Quick Cal assumed 2–3 PM. Check before syncing.";
+  const warns=[...new Set(events.flatMap(x=>x.warnings||[]))];
+  if(warns.length){
+    $("warning").textContent=warns.join("\n");
     $("warning").classList.remove("hidden");
   }
 
   if(batch){
-    $("durationBadge").textContent=events.length+" Events";
-    const root=$("batchPreview");
-    root.replaceChildren();
-    events.forEach(x=>{
-      const row=el("div","batch-item");
-      const info=el("div");
-      info.append(
-        el("strong","",x.title),
-        el("small","",displayDate(x.start)+" · "+displayTime(x.start)+" – "+displayTime(x.end))
+    $("durationBadge").textContent=events.length+" events";
+    $("batchPreview").replaceChildren();
+    events.forEach((x,index)=>{
+      const row=create("div","batch-item");
+      const left=create("div");
+      left.append(
+        create("strong","",x.title),
+        create("small","",prettyDate(x.start)+" · "+
+          prettyTime(x.start)+"–"+prettyTime(x.end)+
+          (x.location?" · "+x.location:"")+
+          (x.recurrence?" · weekly":""))
       );
-      const badge=el("span","pill",getCategory(x.category).name);
-      row.append(info,badge);
-      root.append(row);
+      const badge=create("span","pill",category(x.category).name);
+      const btn=create("button","","Edit");
+      btn.onclick=()=>{
+        const edited=prompt("Edit this event text:",x.raw);
+        if(edited===null)return;
+        events[index]=parseEvent(edited);
+        renderPreview();
+      };
+      row.append(left,badge,btn);
+      $("batchPreview").append(row);
     });
     return;
   }
 
-  const c=getCategory(e.category);
-  const duration=Math.round((e.end-e.start)/60000);
+  const c=category(e.category);
+  const duration=Math.max(0,Math.round((e.end-e.start)/60000));
   $("durationBadge").textContent=Math.floor(duration/60)+"h "+duration%60+"m";
-
   $("previewTitle").textContent=e.title;
-  $("previewDate").textContent=displayDate(e.start);
-  $("previewTime").textContent="🕒 "+displayTime(e.start)+" – "+displayTime(e.end);
+  $("previewDate").textContent=prettyDate(e.start);
+  $("previewTime").textContent="🕒 "+prettyTime(e.start)+" – "+prettyTime(e.end);
   $("previewLocation").textContent=e.location?"📍 "+e.location:"";
   $("previewCategory").textContent=c.name;
-  $("previewCategory").style.background=c.colour+"30";
+  $("previewCategory").style.background=c.colour+"33";
   $("previewCategory").style.color=c.colour;
   $("singlePreview").style.borderLeftColor=c.colour;
   $("previewReminder").textContent="🔔 "+e.reminder+" minutes before";
-  $("previewColour").textContent="🎨 "+GOOGLE_COLOURS[c.google]?.[0];
+  $("previewColour").textContent="🎨 "+GOOGLE[c.google]?.[0];
 }
 
-function showStatus(message,error=false,id="syncStatus"){
-  const element=$(id);
-  element.textContent=message;
-  element.classList.remove("hidden");
-  element.classList.toggle("error",error);
+function status(message,error=false,id="syncStatus"){
+  const n=$(id);
+  n.textContent=message;
+  n.classList.remove("hidden");
+  n.classList.toggle("error",error);
 }
-
 function renderRecent(){
   $("recentCount").textContent=recent.length;
-  const root=$("recentList");
-  root.replaceChildren();
-
+  $("recentList").replaceChildren();
   if(!recent.length){
-    root.append(el("div","empty","No recent events created yet."));
+    $("recentList").append(create("div","empty","No recent events created yet."));
     return;
   }
-
-  recent.slice(0,6).forEach(e=>{
-    const row=el("div","recent-item");
-    const info=el("div");
-    info.append(
-      el("strong","",e.title),
-      el("small","",e.date+" · "+e.time)
+  for(const x of recent.slice(0,6)){
+    const row=create("div","recent-item");
+    const left=create("div");
+    left.append(
+      create("strong","",x.title),
+      create("small","",x.date+" · "+x.time)
     );
-    row.append(info,el("span","pill",e.category));
-    root.append(row);
-  });
+    row.append(left,create("span","pill",x.category));
+    $("recentList").append(row);
+  }
 }
-
-function rememberEvent(e){
+function remember(e){
   recent.unshift({
-    title:e.title,
-    date:dateString(e.start),
-    time:displayTime(e.start),
-    category:getCategory(e.category).name
+    title:e.title,date:ymd(e.start),
+    time:prettyTime(e.start),
+    category:category(e.category).name
   });
   recent=recent.slice(0,30);
-  save("recent",recent);
+  store("recent",recent);
   renderRecent();
 }
 
-function googlePayload(e){
-  const c=getCategory(e.category);
+function payload(e){
+  const c=category(e.category);
   const tz=Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const data={
+  const p={
     summary:e.title,
-    description:e.notes,
     location:e.location,
+    description:e.notes,
     colorId:c.google,
     start:{dateTime:e.start.toISOString(),timeZone:tz},
     end:{dateTime:e.end.toISOString(),timeZone:tz},
@@ -945,112 +1033,118 @@ function googlePayload(e){
       overrides:[{method:e.notification,minutes:e.reminder}]
     }
   };
-  if(e.recurrence)data.recurrence=[e.recurrence];
-  return data;
+  if(e.recurrence)p.recurrence=[e.recurrence];
+  return p;
 }
 
-async function syncToGoogle(){
+async function syncGoogle(){
   if(!events.length)return;
 
   if(!clientId){
-    showStatus("Please add your OAuth Client ID in Settings.",true);
+    status("Enter your Google OAuth Client ID in Settings.",true);
     openSettings();
     return;
   }
 
   if(!window.google?.accounts?.oauth2){
-    showStatus("Google sign-in has not loaded. Check your internet connection.",true);
+    status("Google sign-in unavailable. Check your connection.",true);
     return;
   }
 
-  if(events.length>1&&!confirm("Add "+events.length+" events to Google Calendar?"))return;
+  const warningCount=events.filter(e=>e.warnings?.length).length;
+  if(warningCount&&!confirm(
+    warningCount+" event(s) have parsing assumptions. Have you checked their dates and times?"
+  ))return;
 
-  $("syncButton").disabled=true;
-  showStatus("Connecting to Google Calendar...");
+  if(events.length>1&&!confirm(
+    "Add "+events.length+" events to Google Calendar?"
+  ))return;
+
+  $("syncBtn").disabled=true;
+  status("Connecting to Google…");
 
   try{
     const token=await new Promise((resolve,reject)=>{
-      const tokenClient=google.accounts.oauth2.initTokenClient({
+      const client=google.accounts.oauth2.initTokenClient({
         client_id:clientId,
         scope:"https://www.googleapis.com/auth/calendar.events",
-        callback:r=>r.error?reject(new Error(r.error)):resolve(r.access_token),
-        error_callback:()=>reject(new Error("Sign-in cancelled or blocked."))
+        callback:r=>r.error?reject(Error(r.error)):resolve(r.access_token),
+        error_callback:()=>reject(Error("Google sign-in cancelled or blocked."))
       });
-      tokenClient.requestAccessToken();
+      client.requestAccessToken();
     });
 
-    let count=0;
+    let ok=0;
     const failed=[];
-
     for(const e of events){
       try{
-        const response=await fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events",{
-          method:"POST",
-          headers:{
-            Authorization:"Bearer "+token,
-            "Content-Type":"application/json"
-          },
-          body:JSON.stringify(googlePayload(e))
-        });
-
-        const result=await response.json();
-        if(!response.ok||!result.id)throw new Error(result.error?.message||"API error");
-        count++;
-        rememberEvent(e);
-      }catch(error){
-        failed.push(e.title+": "+error.message);
+        const response=await fetch(
+          "https://www.googleapis.com/calendar/v3/calendars/primary/events",
+          {
+            method:"POST",
+            headers:{
+              Authorization:"Bearer "+token,
+              "Content-Type":"application/json"
+            },
+            body:JSON.stringify(payload(e))
+          }
+        );
+        const data=await response.json();
+        if(!response.ok||!data.id)
+          throw Error(data.error?.message||"Calendar API rejected event");
+        remember(e);
+        ok++;
+      }catch(err){
+        failed.push(e.title+": "+err.message);
       }
     }
 
-    showStatus(
-      count+" of "+events.length+" event(s) added."+
+    status(ok+" of "+events.length+" events added."+
       (failed.length?"\nFailed: "+failed.join("\n"):""),
-      failed.length>0
-    );
-  }catch(error){
-    showStatus("Google connection failed: "+error.message,true);
+      !!failed.length);
+  }catch(err){
+    status("Google sign-in failed: "+err.message,true);
   }finally{
-    $("syncButton").disabled=false;
+    $("syncBtn").disabled=false;
   }
 }
 
-function icsEscape(text){
-  return String(text||"").replace(/\\/g,"\\\\").replace(/\n/g,"\\n").replace(/,/g,"\\,").replace(/;/g,"\\;");
+function icsEscape(s){
+  return String(s||"").replace(/\\/g,"\\\\")
+    .replace(/\n/g,"\\n").replace(/,/g,"\\,").replace(/;/g,"\\;");
 }
-
-function stamp(date){
-  return date.toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,"");
+function icsStamp(d){
+  return d.toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,"");
 }
-
 function downloadICS(){
   if(!events.length)return;
-  const lines=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Quick Cal//EN","CALSCALE:GREGORIAN"];
-
-  events.forEach(e=>{
+  const lines=[
+    "BEGIN:VCALENDAR","VERSION:2.0",
+    "PRODID:-//Quick Cal//EN","CALSCALE:GREGORIAN"
+  ];
+  for(const e of events){
     lines.push(
       "BEGIN:VEVENT",
-      "UID:"+safeId()+"@quickcal",
-      "DTSTAMP:"+stamp(new Date()),
-      "DTSTART:"+stamp(e.start),
-      "DTEND:"+stamp(e.end),
+      "UID:"+uid()+"@quickcal",
+      "DTSTAMP:"+icsStamp(new Date()),
+      "DTSTART:"+icsStamp(e.start),
+      "DTEND:"+icsStamp(e.end),
       "SUMMARY:"+icsEscape(e.title),
       "LOCATION:"+icsEscape(e.location),
       "DESCRIPTION:"+icsEscape(e.notes)
     );
     if(e.recurrence)lines.push(e.recurrence);
     lines.push(
-      "BEGIN:VALARM",
-      "ACTION:DISPLAY",
+      "BEGIN:VALARM","ACTION:DISPLAY",
       "DESCRIPTION:"+icsEscape(e.title),
       "TRIGGER:-PT"+e.reminder+"M",
-      "END:VALARM",
-      "END:VEVENT"
+      "END:VALARM","END:VEVENT"
     );
-  });
-
+  }
   lines.push("END:VCALENDAR");
-  const blob=new Blob([lines.join("\r\n")+"\r\n"],{type:"text/calendar;charset=utf-8"});
-  const url=URL.createObjectURL(blob);
+  const url=URL.createObjectURL(
+    new Blob([lines.join("\r\n")+"\r\n"],{type:"text/calendar;charset=utf-8"})
+  );
   const a=document.createElement("a");
   a.href=url;
   a.download="quickcal-events.ics";
@@ -1058,17 +1152,18 @@ function downloadICS(){
   setTimeout(()=>URL.revokeObjectURL(url),1500);
 }
 
-function copyEvents(){
-  if(!events.length)return;
+async function copyEvents(){
   const content=events.map(e=>
-    e.title+" | "+displayDate(e.start)+" | "+
-    displayTime(e.start)+"–"+displayTime(e.end)+
+    e.title+" | "+prettyDate(e.start)+" "+
+    prettyTime(e.start)+"–"+prettyTime(e.end)+
     (e.location?" | "+e.location:"")
   ).join("\n");
-  navigator.clipboard.writeText(content).then(
-    ()=>showStatus("Event details copied."),
-    ()=>showStatus("Clipboard access unavailable.",true)
-  );
+  try{
+    await navigator.clipboard.writeText(content);
+    status("Event details copied.");
+  }catch{
+    status("Clipboard not available on this page.",true);
+  }
 }
 
 function openSettings(){
@@ -1084,18 +1179,20 @@ function closeSettings(){
 
 function init(){
   $("clientId").value=clientId;
+  $("termStart").value=termStart;
   $("termEnd").value=termEnd;
-  $("connectionBadge").textContent=clientId?"OAuth configured":"Not connected";
-  if(clientId)$("connectionBadge").classList.add("success");
+  $("connectionBadge").textContent=clientId?"OAuth configured":"Not configured";
 
-  const colours=$("newCategoryGoogleColour");
-  Object.entries(GOOGLE_COLOURS).forEach(([id,value])=>{
+  for(const [id,[name]] of Object.entries(GOOGLE)){
     const option=document.createElement("option");
     option.value=id;
-    option.textContent=value[0];
-    colours.append(option);
+    option.textContent=name;
+    $("catGoogle").append(option);
+  }
+
+  $("catColour").addEventListener("input",()=>{
+    $("catGoogle").value=nearestGoogle($("catColour").value);
   });
-  colours.value="9";
 
   renderCategories();
   renderRecent();
@@ -1103,58 +1200,68 @@ function init(){
 
   $("prompt").addEventListener("input",updatePrompt);
 
-  document.querySelectorAll("[data-preset]").forEach(button=>{
-    button.onclick=()=>{
-      $("prompt").value=PRESETS[button.dataset.preset];
+  document.querySelectorAll("[data-preset]").forEach(b=>{
+    b.onclick=()=>{
+      $("prompt").value=PRESETS[b.dataset.preset];
       updatePrompt();
     };
   });
 
-  ["eventTitle","eventDate","eventStart","eventEnd","eventLocation",
-   "eventNotes","eventReminder","eventNotification"].forEach(id=>{
-    $(id).addEventListener("input",updateFromForm);
-    $(id).addEventListener("change",updateFromForm);
-  });
+  for(const key of [
+    "eventTitle","eventDate","eventStart","eventEnd",
+    "eventLocation","eventNotes","eventReminder","eventNotification"
+  ]){
+    $(key).addEventListener("input",updateFromForm);
+    $(key).addEventListener("change",updateFromForm);
+  }
 
-  $("syncButton").onclick=syncToGoogle;
-  $("downloadICS").onclick=downloadICS;
-  $("copyEvent").onclick=copyEvents;
+  $("syncBtn").onclick=syncGoogle;
+  $("icsBtn").onclick=downloadICS;
+  $("copyBtn").onclick=copyEvents;
+
   $("clearPrompt").onclick=()=>{
     $("prompt").value="";
     events=[];
     $("detailsCard").classList.remove("hidden");
     $("singlePreview").classList.remove("hidden");
     $("batchPreview").classList.add("hidden");
-    $("warning").classList.add("hidden");
     $("syncStatus").classList.add("hidden");
     renderPreview();
-    $("prompt").focus();
   };
 
-  $("settingsButton").onclick=openSettings;
-  $("backButton").onclick=closeSettings;
-  $("manageCategories").onclick=()=>{
-    openSettings();
-    $("newCategoryName").scrollIntoView({behavior:"smooth",block:"center"});
-  };
-  $("addCategoryShortcut").onclick=openSettings;
-
-  $("saveCategory").onclick=saveCategory;
+  $("settingsBtn").onclick=openSettings;
+  $("backBtn").onclick=closeSettings;
 
   $("saveCredentials").onclick=()=>{
     clientId=$("clientId").value.trim();
-    localStorage.setItem(STORAGE+"clientId",clientId);
-    $("connectionBadge").textContent=clientId?"OAuth configured":"Not connected";
-    $("connectionBadge").classList.toggle("success",!!clientId);
-    showStatus("Credentials saved on this device.",false,"settingsStatus");
+    localStorage.setItem(KEY+"clientId",clientId);
+    $("connectionBadge").textContent=clientId?"OAuth configured":"Not configured";
+    status("OAuth Client ID saved on this device.",false,"settingsStatus");
   };
 
   $("saveTerm").onclick=()=>{
+    termStart=$("termStart").value;
     termEnd=$("termEnd").value;
-    localStorage.setItem(STORAGE+"termEnd",termEnd);
+    if(!termStart||!termEnd||termStart>termEnd){
+      status("Enter valid start and end dates.",true,"settingsStatus");
+      return;
+    }
+    localStorage.setItem(KEY+"termStart",termStart);
+    localStorage.setItem(KEY+"termEnd",termEnd);
     updatePrompt();
-    showStatus("Term end saved.",false,"settingsStatus");
+    status("Academic term updated.",false,"settingsStatus");
   };
+
+  $("saveCat").onclick=saveCat;
+  $("cancelCat").onclick=closeCat;
+  $("deleteCat").onclick=deleteCat;
+  $("modalBackdrop").addEventListener("click",e=>{
+    if(e.target===$("modalBackdrop"))closeCat();
+  });
+  document.addEventListener("keydown",e=>{
+    if(e.key==="Escape"&&!$("modalBackdrop").classList.contains("hidden"))
+      closeCat();
+  });
 }
 
 init();
